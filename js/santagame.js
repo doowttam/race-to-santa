@@ -1,5 +1,5 @@
 (function() {
-  var Key,
+  var Foot, Key,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   window.SantaGame = (function() {
@@ -27,8 +27,9 @@
       this.win.onkeydown = function(e) {
         return _this.key.onKeyDown(e);
       };
-      this.lRadius = 5;
-      this.rRadius = 5;
+      this.momentum = 100;
+      this.leftFoot = new Foot('LEFT');
+      this.rightFoot = new Foot('RIGHT');
     }
 
     SantaGame.prototype.resetCanvas = function() {
@@ -55,16 +56,48 @@
     };
 
     SantaGame.prototype.update = function() {
+      var leftWasDown, rightWasDown, strokeLength;
       if (this.key.isDown(this.key.codes.LEFT)) {
-        this.lRadius = this.lRadius + 2;
-      } else if (this.lRadius > 5) {
-        this.lRadius = this.lRadius - 1;
+        this.leftFoot.addToStroke(2);
+      } else if (this.leftFoot.radius > 5) {
+        this.leftFoot.removeFromStroke(1);
       }
       if (this.key.isDown(this.key.codes.RIGHT)) {
-        return this.rRadius = this.rRadius + 2;
-      } else if (this.rRadius > 5) {
-        return this.rRadius = this.rRadius - 1;
+        this.rightFoot.addToStroke(2);
+      } else if (this.rightFoot.radius > 5) {
+        this.rightFoot.removeFromStroke(1);
       }
+      leftWasDown = this.leftFoot.down;
+      rightWasDown = this.rightFoot.down;
+      this.leftFoot.update(this.key);
+      this.rightFoot.update(this.key);
+      if (leftWasDown && !this.leftFoot.down) {
+        strokeLength = this.leftFoot.endStroke();
+        if (this.leftFoot.radius > 130) {
+          strokeLength = 20;
+        } else if (this.leftFoot.radius > 100) {
+          strokeLength = strokeLength + 20;
+        }
+        this.momentum = this.momentum + strokeLength;
+      } else if (!leftWasDown && this.leftFoot.down) {
+        if (this.leftFoot.position !== 0) this.momentum = 20;
+        this.leftFoot.startStroke();
+        this.rightFoot.reposition();
+      }
+      if (rightWasDown && !this.rightFoot.down) {
+        strokeLength = this.rightFoot.endStroke();
+        if (this.rightFoot.radius > 130) {
+          strokeLength = 20;
+        } else if (this.rightFoot.radius > 100) {
+          strokeLength = strokeLength + 20;
+        }
+        this.momentum = this.momentum + strokeLength;
+      } else if (!rightWasDown && this.rightFoot.down) {
+        if (this.rightFoot.position !== 0) this.momentum = 20;
+        this.rightFoot.startStroke();
+        this.leftFoot.reposition();
+      }
+      if (this.momentum > 0) return this.momentum = this.momentum - 0.5;
     };
 
     SantaGame.prototype.drawCircles = function() {
@@ -78,42 +111,16 @@
           return 'black';
         }
       };
+      this.context.fillStyle = 'purple';
+      this.context.fillRect(0, 30, this.momentum, 10);
       this.context.strokeStyle = 'black';
       this.context.beginPath();
       this.context.moveTo(200, 200);
       this.context.lineTo(475, 200);
       this.context.closePath();
       this.context.stroke();
-      this.context.beginPath();
-      this.context.arc(200, 200, this.lRadius, 0, Math.PI * 2, false);
-      this.context.closePath();
-      this.context.fillStyle = colorByRadius(this.lRadius);
-      this.context.stroke();
-      this.context.fill();
-      this.context.beginPath();
-      this.context.arc(475, 200, this.rRadius, 0, Math.PI * 2, false);
-      this.context.closePath();
-      this.context.fillStyle = colorByRadius(this.rRadius);
-      this.context.stroke();
-      this.context.fill();
-      this.context.strokeStyle = 'gray';
-      this.context.beginPath();
-      this.context.arc(200, 200, 100, 0, Math.PI * 2, false);
-      this.context.closePath();
-      this.context.stroke();
-      this.context.beginPath();
-      this.context.arc(475, 200, 100, 0, Math.PI * 2, false);
-      this.context.closePath();
-      this.context.stroke();
-      this.context.strokeStyle = 'gray';
-      this.context.beginPath();
-      this.context.arc(200, 200, 130, 0, Math.PI * 2, false);
-      this.context.closePath();
-      this.context.stroke();
-      this.context.beginPath();
-      this.context.arc(475, 200, 130, 0, Math.PI * 2, false);
-      this.context.closePath();
-      return this.context.stroke();
+      this.leftFoot.draw(this.context, 200, 200);
+      return this.rightFoot.draw(this.context, 475, 200);
     };
 
     return SantaGame;
@@ -151,6 +158,76 @@
     };
 
     return Key;
+
+  })();
+
+  Foot = (function() {
+
+    function Foot(foot, position) {
+      this.foot = foot;
+      this.position = position != null ? position : 0;
+      this.down = false;
+      this.start = 0;
+      this.radius = 5;
+    }
+
+    Foot.prototype.update = function(key) {
+      return this.down = key.isDown(key.codes[this.foot]);
+    };
+
+    Foot.prototype.startStroke = function() {
+      this.start = this.radius;
+      return this.position = 1;
+    };
+
+    Foot.prototype.endStroke = function() {
+      this.position = -1;
+      return this.radius - this.start;
+    };
+
+    Foot.prototype.reposition = function() {
+      return this.position = 0;
+    };
+
+    Foot.prototype.addToStroke = function(length) {
+      return this.radius = this.radius + length;
+    };
+
+    Foot.prototype.removeFromStroke = function(length) {
+      return this.radius = this.radius - length;
+    };
+
+    Foot.prototype.colorByRadius = function(radius) {
+      if (radius > 130) {
+        return 'red';
+      } else if (radius > 100) {
+        return 'green';
+      } else {
+        return 'black';
+      }
+    };
+
+    Foot.prototype.draw = function(context, x, y) {
+      y = y + (this.position * -50);
+      context.beginPath();
+      context.arc(x, y, this.radius, 0, Math.PI * 2, false);
+      context.closePath();
+      context.fillStyle = this.colorByRadius(this.radius);
+      context.stroke();
+      context.fill();
+      context.strokeStyle = 'gray';
+      context.beginPath();
+      context.arc(x, y, 100, 0, Math.PI * 2, false);
+      context.closePath();
+      context.stroke();
+      context.strokeStyle = 'gray';
+      context.beginPath();
+      context.arc(x, y, 130, 0, Math.PI * 2, false);
+      context.closePath();
+      return context.stroke();
+    };
+
+    return Foot;
 
   })();
 
