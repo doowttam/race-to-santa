@@ -56,32 +56,20 @@
     };
 
     SantaGame.prototype.update = function() {
-      var leftWasDown, rightWasDown, strokeLength;
+      var leftWasDown, rightWasDown;
       leftWasDown = this.leftFoot.down;
       rightWasDown = this.rightFoot.down;
       this.leftFoot.update(this.key);
       this.rightFoot.update(this.key);
       if (leftWasDown && !this.leftFoot.down) {
-        strokeLength = this.leftFoot.endStroke();
-        if (this.leftFoot.radius > 130) {
-          strokeLength = 20;
-        } else if (this.leftFoot.radius > 100) {
-          strokeLength = strokeLength + 20;
-        }
-        this.momentum = this.momentum + strokeLength;
+        this.momentum = this.momentum + this.leftFoot.finishStroke();
       } else if (!leftWasDown && this.leftFoot.down) {
         if (this.leftFoot.position !== 0) this.momentum = 20;
         this.leftFoot.startStroke();
         this.rightFoot.reposition();
       }
       if (rightWasDown && !this.rightFoot.down) {
-        strokeLength = this.rightFoot.endStroke();
-        if (this.rightFoot.radius > 130) {
-          strokeLength = 20;
-        } else if (this.rightFoot.radius > 100) {
-          strokeLength = strokeLength + 20;
-        }
-        this.momentum = this.momentum + strokeLength;
+        this.momentum = this.momentum + this.rightFoot.finishStroke();
       } else if (!rightWasDown && this.rightFoot.down) {
         if (this.rightFoot.position !== 0) this.momentum = 20;
         this.rightFoot.startStroke();
@@ -191,6 +179,17 @@
 
     Foot.prototype.removeFromStroke = function(length) {
       return this.radius = this.radius - length;
+    };
+
+    Foot.prototype.finishStroke = function() {
+      var strokeLength;
+      strokeLength = this.endStroke();
+      if (this.radius > 130) {
+        strokeLength = 20;
+      } else if (this.radius > 100) {
+        strokeLength = strokeLength + 20;
+      }
+      return strokeLength;
     };
 
     Foot.prototype.colorByRadius = function(radius) {

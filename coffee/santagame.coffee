@@ -1,6 +1,5 @@
 class window.SantaGame
   constructor: (@doc, @win) ->
-
     @canvas  = @doc.getElementById 'game_canvas'
     @context = @canvas.getContext '2d'
     @buttons =
@@ -57,15 +56,7 @@ class window.SantaGame
     @rightFoot.update @key
 
     if leftWasDown and !@leftFoot.down
-      strokeLength = @leftFoot.endStroke()
-
-      # Too long!
-      if @leftFoot.radius > 130
-        strokeLength = 20
-      else if @leftFoot.radius > 100
-        strokeLength = strokeLength + 20
-
-      @momentum = @momentum + strokeLength
+      @momentum = @momentum + @leftFoot.finishStroke()
     else if !leftWasDown and @leftFoot.down
       # Stumble!
       @momentum = 20 if @leftFoot.position != 0
@@ -73,15 +64,7 @@ class window.SantaGame
       @rightFoot.reposition()
 
     if rightWasDown and !@rightFoot.down
-      strokeLength = @rightFoot.endStroke()
-
-      # Too long!
-      if @rightFoot.radius > 130
-        strokeLength = 20
-      else if @rightFoot.radius > 100
-        strokeLength = strokeLength + 20
-
-      @momentum = @momentum + strokeLength
+      @momentum = @momentum + @rightFoot.finishStroke()
     else if !rightWasDown and @rightFoot.down
       # Stumble!
       @momentum = 20 if @rightFoot.position != 0
@@ -161,6 +144,17 @@ class Foot
 
   addToStroke:      (length) -> @radius = @radius + length
   removeFromStroke: (length) -> @radius = @radius - length
+
+  finishStroke: ->
+    strokeLength = @endStroke()
+
+    # Too long!
+    if @radius > 130
+      strokeLength = 20
+    else if @radius > 100
+      strokeLength = strokeLength + 20
+
+    return strokeLength
 
   colorByRadius: (radius) ->
     if radius > 130
