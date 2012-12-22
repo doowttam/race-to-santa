@@ -50,16 +50,6 @@ class window.SantaGame
     requestAnimationFrame @drawFrame if @running
 
   update: ->
-    if @key.isDown @key.codes.LEFT
-      @leftFoot.addToStroke(2)
-    else if @leftFoot.radius > 5
-      @leftFoot.removeFromStroke(1)
-
-    if ( @key.isDown @key.codes.RIGHT )
-      @rightFoot.addToStroke(2)
-    else if @rightFoot.radius > 5
-      @rightFoot.removeFromStroke(1)
-
     leftWasDown  = @leftFoot.down
     rightWasDown = @rightFoot.down
 
@@ -152,7 +142,12 @@ class Foot
     @radius = 5
 
   update: (key) ->
-    @down = key.isDown key.codes[@foot]
+    if key.isDown key.codes[@foot]
+      @addToStroke(2)
+      @down = true
+    else if @radius > 5
+      @removeFromStroke(1)
+      @down = false
 
   startStroke: ->
     @start    = @radius

@@ -57,16 +57,6 @@
 
     SantaGame.prototype.update = function() {
       var leftWasDown, rightWasDown, strokeLength;
-      if (this.key.isDown(this.key.codes.LEFT)) {
-        this.leftFoot.addToStroke(2);
-      } else if (this.leftFoot.radius > 5) {
-        this.leftFoot.removeFromStroke(1);
-      }
-      if (this.key.isDown(this.key.codes.RIGHT)) {
-        this.rightFoot.addToStroke(2);
-      } else if (this.rightFoot.radius > 5) {
-        this.rightFoot.removeFromStroke(1);
-      }
       leftWasDown = this.leftFoot.down;
       rightWasDown = this.rightFoot.down;
       this.leftFoot.update(this.key);
@@ -172,7 +162,13 @@
     }
 
     Foot.prototype.update = function(key) {
-      return this.down = key.isDown(key.codes[this.foot]);
+      if (key.isDown(key.codes[this.foot])) {
+        this.addToStroke(2);
+        return this.down = true;
+      } else if (this.radius > 5) {
+        this.removeFromStroke(1);
+        return this.down = false;
+      }
     };
 
     Foot.prototype.startStroke = function() {
