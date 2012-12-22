@@ -75,6 +75,9 @@ class window.SantaGame
     if @momentum > 0
       @momentum = @momentum - 0.5
 
+    if @momentum > @canvas.width
+      @momentum = @canvas.width
+
   drawCircles: =>
     colorByRadius = (radius) ->
       if radius > 130

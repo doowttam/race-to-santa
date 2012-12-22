@@ -75,7 +75,10 @@
         this.rightFoot.startStroke();
         this.leftFoot.reposition();
       }
-      if (this.momentum > 0) return this.momentum = this.momentum - 0.5;
+      if (this.momentum > 0) this.momentum = this.momentum - 0.5;
+      if (this.momentum > this.canvas.width) {
+        return this.momentum = this.canvas.width;
+      }
     };
 
     SantaGame.prototype.drawCircles = function() {
