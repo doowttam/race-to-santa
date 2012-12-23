@@ -15,13 +15,9 @@ class window.SantaGame
     @win.onkeydown = (e) =>
       @key.onKeyDown e
 
-    @momentum = 100
-
-    @leftFoot  = new Foot 'LEFT'
-    @rightFoot = new Foot 'RIGHT'
-
-    @course  = new Course @canvas.width, 0, 200
-    @course2 = new Course @canvas.width, 200, @canvas.height
+    @course  = new Course @canvas.width
+    @player1 = new Player 'LEFT', 'RIGHT', 0, 200, @canvas, @key, 100, @course
+    @player2 = new Player 'A', 'D', 200, @canvas.height, @canvas, @key, 100, @course
 
   resetCanvas: ->
     @canvas.width = @canvas.width
@@ -42,12 +38,8 @@ class window.SantaGame
 
     @context.stroke()
 
-
-    @course.draw @context, @canvas, 0
-    @course2.draw @context, @canvas, 0
-
-    # Draw main parts of UI
-    @drawCircles()
+    @player1.draw @context, @canvas
+    @player2.draw @context, @canvas
 
     # Continue running if we should
     requestAnimationFrame @drawFrame if @running
@@ -61,6 +53,38 @@ class window.SantaGame
   pause: =>
     @running = !@running
     requestAnimationFrame @drawFrame if @running
+
+  update: ->
+    @player1.update()
+    @player2.update()
+
+# Inspired by http://nokarma.org/2011/02/27/javascript-game-development-keyboard-input/index.html
+class Key
+  pressed: {}
+
+  codes:
+    'LEFT': 37
+    'UP': 38
+    'RIGHT': 39
+    'DOWN': 40
+    'SPACE': 32
+    'A': 65
+    'D': 68
+
+  isDown: (keyCode) =>
+    return @pressed[keyCode]
+
+  onKeyDown: (event) =>
+    @pressed[event.keyCode] = true
+
+  onKeyUp: (event) =>
+    delete @pressed[event.keyCode]
+
+class Player
+  constructor: (@leftKey, @rightKey, @top, @bottom, @canvas, @key, @momentum, @course) ->
+    @leftFoot  = new Foot @leftKey
+    @rightFoot = new Foot @rightKey
+    @x         = 0
 
   update: ->
     leftWasDown  = @leftFoot.down
@@ -93,39 +117,17 @@ class window.SantaGame
       @momentum = @canvas.width
 
     speed = Math.ceil( @momentum / 40)
-    @course.x  = @course.x + speed
-    @course2.x = @course2.x + speed
+    @x = @x + speed
 
-    @course.update()
-    @course2.update()
+    @course.update @x
 
-  drawCircles: =>
-    @context.fillStyle = 'purple'
-    @context.fillRect 0, 30, @momentum, 10
-    @context.strokeStyle = 'black'
+  draw: (context, canvas) ->
+    @course.draw context, canvas, @top, @bottom, @x
+    @leftFoot.draw context, canvas.width - 200, @top + 75
+    @rightFoot.draw context, canvas.width - 100, @top + 75
 
-    @leftFoot.draw @context, 475, 75
-    @rightFoot.draw @context, 575, 75
-
-# Inspired by http://nokarma.org/2011/02/27/javascript-game-development-keyboard-input/index.html
-class Key
-  pressed: {}
-
-  codes:
-    'LEFT': 37
-    'UP': 38
-    'RIGHT': 39
-    'DOWN': 40
-    'SPACE': 32
-
-  isDown: (keyCode) =>
-    return @pressed[keyCode]
-
-  onKeyDown: (event) =>
-    @pressed[event.keyCode] = true
-
-  onKeyUp: (event) =>
-    delete @pressed[event.keyCode]
+    context.fillStyle = 'purple'
+    context.fillRect 0, @top + 30, @momentum, 10
 
 class Foot
   constructor: (@foot, @position = 0) ->
@@ -205,44 +207,42 @@ class Foot
     context.stroke()
 
 class Course
-  constructor: (@width, @top, @bottom) ->
-    @x       = 0
+  constructor: (@width) ->
     @items   = {}
-    @edge    = @x + @width
-    @horizon = @bottom - 50
+    @edge    = @width
 
-  update: ->
-    if @x + @width > @edge
-      @edge = @x + @width
+  update: (x) ->
+    if x + @width > @edge
+      @edge = x + @width
       if Math.random() < 0.01
         @items[@edge] = true
 
-  draw: (context, canvas) ->
+  draw: (context, canvas, top, bottom, x) ->
+    horizon = bottom - 50
+
     context.strokeStyle = 'black'
 
     context.beginPath()
-    context.moveTo 0, @horizon
-    context.lineTo canvas.width, @horizon
+    context.moveTo 0, horizon
+    context.lineTo canvas.width, horizon
     context.closePath()
 
     context.stroke()
 
-    start = @x % 100
+    start = x % 100
     for drawX in [0..canvas.width] by 100
       context.beginPath()
-      context.moveTo drawX - start, @top
-      context.lineTo drawX - start, @horizon
-      context.moveTo drawX - start, @horizon
-      context.lineTo drawX - start + 75, @bottom
+      context.moveTo drawX - start, top
+      context.lineTo drawX - start, horizon
+      context.moveTo drawX - start, horizon
+      context.lineTo drawX - start + 75, bottom
       context.closePath()
 
       context.stroke()
 
+    for drawX in [x..x + @width]
+      @drawItem(context, drawX - x, bottom) if @items[drawX]
 
-
-    for drawX in [@x..@x + @width]
-      @drawItem(context, drawX - @x) if @items[drawX]
-
-  drawItem: (context, drawX) ->
+  drawItem: (context, drawX, bottom) ->
     context.fillStyle = 'black'
-    context.fillRect drawX, @bottom - 75, 30, 60
+    context.fillRect drawX, bottom - 75, 30, 60

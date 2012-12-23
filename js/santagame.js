@@ -1,5 +1,5 @@
 (function() {
-  var Course, Foot, Key,
+  var Course, Foot, Key, Player,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   window.SantaGame = (function() {
@@ -8,7 +8,6 @@
       var _this = this;
       this.doc = doc;
       this.win = win;
-      this.drawCircles = __bind(this.drawCircles, this);
       this.pause = __bind(this.pause, this);
       this.play = __bind(this.play, this);
       this.drawFrame = __bind(this.drawFrame, this);
@@ -27,11 +26,9 @@
       this.win.onkeydown = function(e) {
         return _this.key.onKeyDown(e);
       };
-      this.momentum = 100;
-      this.leftFoot = new Foot('LEFT');
-      this.rightFoot = new Foot('RIGHT');
-      this.course = new Course(this.canvas.width, 0, 200);
-      this.course2 = new Course(this.canvas.width, 200, this.canvas.height);
+      this.course = new Course(this.canvas.width);
+      this.player1 = new Player('LEFT', 'RIGHT', 0, 200, this.canvas, this.key, 100, this.course);
+      this.player2 = new Player('A', 'D', 200, this.canvas.height, this.canvas, this.key, 100, this.course);
     }
 
     SantaGame.prototype.resetCanvas = function() {
@@ -47,9 +44,8 @@
       this.context.lineTo(this.canvas.width, 200);
       this.context.closePath();
       this.context.stroke();
-      this.course.draw(this.context, this.canvas, 0);
-      this.course2.draw(this.context, this.canvas, 0);
-      this.drawCircles();
+      this.player1.draw(this.context, this.canvas);
+      this.player2.draw(this.context, this.canvas);
       if (this.running) return requestAnimationFrame(this.drawFrame);
     };
 
@@ -65,6 +61,67 @@
     };
 
     SantaGame.prototype.update = function() {
+      this.player1.update();
+      return this.player2.update();
+    };
+
+    return SantaGame;
+
+  })();
+
+  Key = (function() {
+
+    function Key() {
+      this.onKeyUp = __bind(this.onKeyUp, this);
+      this.onKeyDown = __bind(this.onKeyDown, this);
+      this.isDown = __bind(this.isDown, this);
+    }
+
+    Key.prototype.pressed = {};
+
+    Key.prototype.codes = {
+      'LEFT': 37,
+      'UP': 38,
+      'RIGHT': 39,
+      'DOWN': 40,
+      'SPACE': 32,
+      'A': 65,
+      'D': 68
+    };
+
+    Key.prototype.isDown = function(keyCode) {
+      return this.pressed[keyCode];
+    };
+
+    Key.prototype.onKeyDown = function(event) {
+      return this.pressed[event.keyCode] = true;
+    };
+
+    Key.prototype.onKeyUp = function(event) {
+      return delete this.pressed[event.keyCode];
+    };
+
+    return Key;
+
+  })();
+
+  Player = (function() {
+
+    function Player(leftKey, rightKey, top, bottom, canvas, key, momentum, course) {
+      this.leftKey = leftKey;
+      this.rightKey = rightKey;
+      this.top = top;
+      this.bottom = bottom;
+      this.canvas = canvas;
+      this.key = key;
+      this.momentum = momentum;
+      this.course = course;
+      this.leftFoot = new Foot(this.leftKey);
+      this.rightFoot = new Foot(this.rightKey);
+      this.x = 0;
+    }
+
+    Player.prototype.update = function() {
       var leftWasDown, rightWasDown, speed;
       leftWasDown = this.leftFoot.down;
       rightWasDown = this.rightFoot.down;
@@ -87,55 +144,19 @@
       if (this.momentum > 0) this.momentum = this.momentum - 0.5;
       if (this.momentum > this.canvas.width) this.momentum = this.canvas.width;
       speed = Math.ceil(this.momentum / 40);
-      this.course.x = this.course.x + speed;
-      this.course2.x = this.course2.x + speed;
-      this.course.update();
-      return this.course2.update();
+      this.x = this.x + speed;
+      return this.course.update(this.x);
     };
 
-    SantaGame.prototype.drawCircles = function() {
-      this.context.fillStyle = 'purple';
-      this.context.fillRect(0, 30, this.momentum, 10);
-      this.context.strokeStyle = 'black';
-      this.leftFoot.draw(this.context, 475, 75);
-      return this.rightFoot.draw(this.context, 575, 75);
+    Player.prototype.draw = function(context, canvas) {
+      this.course.draw(context, canvas, this.top, this.bottom, this.x);
+      this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
+      this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
+      context.fillStyle = 'purple';
+      return context.fillRect(0, this.top + 30, this.momentum, 10);
     };
 
-    return SantaGame;
-
-  })();
-
-  Key = (function() {
-
-    function Key() {
-      this.onKeyUp = __bind(this.onKeyUp, this);
-      this.onKeyDown = __bind(this.onKeyDown, this);
-      this.isDown = __bind(this.isDown, this);
-    }
-
-    Key.prototype.pressed = {};
-
-    Key.prototype.codes = {
-      'LEFT': 37,
-      'UP': 38,
-      'RIGHT': 39,
-      'DOWN': 40,
-      'SPACE': 32
-    };
-
-    Key.prototype.isDown = function(keyCode) {
-      return this.pressed[keyCode];
-    };
-
-    Key.prototype.onKeyDown = function(event) {
-      return this.pressed[event.keyCode] = true;
-    };
-
-    Key.prototype.onKeyUp = function(event) {
-      return delete this.pressed[event.keyCode];
-    };
-
-    return Key;
+    return Player;
 
   })();
 
@@ -231,45 +252,42 @@
 
   Course = (function() {
 
-    function Course(width, top, bottom) {
+    function Course(width) {
       this.width = width;
-      this.top = top;
-      this.bottom = bottom;
-      this.x = 0;
       this.items = {};
-      this.edge = this.x + this.width;
-      this.horizon = this.bottom - 50;
+      this.edge = this.width;
     }
 
-    Course.prototype.update = function() {
-      if (this.x + this.width > this.edge) {
-        this.edge = this.x + this.width;
+    Course.prototype.update = function(x) {
+      if (x + this.width > this.edge) {
+        this.edge = x + this.width;
         if (Math.random() < 0.01) return this.items[this.edge] = true;
       }
     };
 
-    Course.prototype.draw = function(context, canvas) {
-      var drawX, start, _ref, _ref2, _ref3, _results;
+    Course.prototype.draw = function(context, canvas, top, bottom, x) {
+      var drawX, horizon, start, _ref, _ref2, _results;
+      horizon = bottom - 50;
       context.strokeStyle = 'black';
       context.beginPath();
-      context.moveTo(0, this.horizon);
-      context.lineTo(canvas.width, this.horizon);
+      context.moveTo(0, horizon);
+      context.lineTo(canvas.width, horizon);
       context.closePath();
       context.stroke();
-      start = this.x % 100;
+      start = x % 100;
       for (drawX = 0, _ref = canvas.width; drawX <= _ref; drawX += 100) {
         context.beginPath();
-        context.moveTo(drawX - start, this.top);
-        context.lineTo(drawX - start, this.horizon);
-        context.moveTo(drawX - start, this.horizon);
-        context.lineTo(drawX - start + 75, this.bottom);
+        context.moveTo(drawX - start, top);
+        context.lineTo(drawX - start, horizon);
+        context.moveTo(drawX - start, horizon);
+        context.lineTo(drawX - start + 75, bottom);
         context.closePath();
         context.stroke();
       }
       _results = [];
-      for (drawX = _ref2 = this.x, _ref3 = this.x + this.width; _ref2 <= _ref3 ? drawX <= _ref3 : drawX >= _ref3; _ref2 <= _ref3 ? drawX++ : drawX--) {
+      for (drawX = x, _ref2 = x + this.width; x <= _ref2 ? drawX <= _ref2 : drawX >= _ref2; x <= _ref2 ? drawX++ : drawX--) {
         if (this.items[drawX]) {
-          _results.push(this.drawItem(context, drawX - this.x));
+          _results.push(this.drawItem(context, drawX - x, bottom));
         } else {
           _results.push(void 0);
         }
@@ -277,9 +295,9 @@
       return _results;
     };
 
-    Course.prototype.drawItem = function(context, drawX) {
+    Course.prototype.drawItem = function(context, drawX, bottom) {
       context.fillStyle = 'black';
-      return context.fillRect(drawX, this.bottom - 75, 30, 60);
+      return context.fillRect(drawX, bottom - 75, 30, 60);
     };
 
     return Course;
