@@ -20,7 +20,8 @@ class window.SantaGame
     @leftFoot  = new Foot 'LEFT'
     @rightFoot = new Foot 'RIGHT'
 
-    @course = new Course @canvas.width
+    @course  = new Course @canvas.width, 0, 200
+    @course2 = new Course @canvas.width, 200, @canvas.height
 
   resetCanvas: ->
     @canvas.width = @canvas.width
@@ -34,7 +35,16 @@ class window.SantaGame
     # Wipe canvas so we can draw on it
     @resetCanvas()
 
+    @context.beginPath()
+    @context.moveTo 0, 200
+    @context.lineTo @canvas.width, 200
+    @context.closePath()
+
+    @context.stroke()
+
+
     @course.draw @context, @canvas, 0
+    @course2.draw @context, @canvas, 0
 
     # Draw main parts of UI
     @drawCircles()
@@ -83,9 +93,11 @@ class window.SantaGame
       @momentum = @canvas.width
 
     speed = Math.ceil( @momentum / 40)
-    @course.x = @course.x + speed
+    @course.x  = @course.x + speed
+    @course2.x = @course2.x + speed
 
     @course.update()
+    @course2.update()
 
   drawCircles: =>
     @context.fillStyle = 'purple'
@@ -193,11 +205,11 @@ class Foot
     context.stroke()
 
 class Course
-  constructor: (@width) ->
+  constructor: (@width, @top, @bottom) ->
     @x       = 0
     @items   = {}
     @edge    = @x + @width
-    @horizon = 350
+    @horizon = @bottom - 50
 
   update: ->
     if @x + @width > @edge
@@ -218,10 +230,10 @@ class Course
     start = @x % 100
     for drawX in [0..canvas.width] by 100
       context.beginPath()
-      context.moveTo drawX - start, 0
+      context.moveTo drawX - start, @top
       context.lineTo drawX - start, @horizon
       context.moveTo drawX - start, @horizon
-      context.lineTo drawX - start + 100, canvas.height
+      context.lineTo drawX - start + 75, @bottom
       context.closePath()
 
       context.stroke()
@@ -233,4 +245,4 @@ class Course
 
   drawItem: (context, drawX) ->
     context.fillStyle = 'black'
-    context.fillRect drawX, 325, 30, 60
+    context.fillRect drawX, @bottom - 75, 30, 60

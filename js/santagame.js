@@ -30,7 +30,8 @@
       this.momentum = 100;
       this.leftFoot = new Foot('LEFT');
       this.rightFoot = new Foot('RIGHT');
-      this.course = new Course(this.canvas.width);
+      this.course = new Course(this.canvas.width, 0, 200);
+      this.course2 = new Course(this.canvas.width, 200, this.canvas.height);
     }
 
     SantaGame.prototype.resetCanvas = function() {
@@ -41,7 +42,13 @@
       this.frame++;
       this.update();
       this.resetCanvas();
+      this.context.beginPath();
+      this.context.moveTo(0, 200);
+      this.context.lineTo(this.canvas.width, 200);
+      this.context.closePath();
+      this.context.stroke();
       this.course.draw(this.context, this.canvas, 0);
+      this.course2.draw(this.context, this.canvas, 0);
       this.drawCircles();
       if (this.running) return requestAnimationFrame(this.drawFrame);
     };
@@ -81,7 +88,9 @@
       if (this.momentum > this.canvas.width) this.momentum = this.canvas.width;
       speed = Math.ceil(this.momentum / 40);
       this.course.x = this.course.x + speed;
-      return this.course.update();
+      this.course2.x = this.course2.x + speed;
+      this.course.update();
+      return this.course2.update();
     };
 
     SantaGame.prototype.drawCircles = function() {
@@ -222,12 +231,14 @@
 
   Course = (function() {
 
-    function Course(width) {
+    function Course(width, top, bottom) {
       this.width = width;
+      this.top = top;
+      this.bottom = bottom;
       this.x = 0;
       this.items = {};
       this.edge = this.x + this.width;
-      this.horizon = 350;
+      this.horizon = this.bottom - 50;
     }
 
     Course.prototype.update = function() {
@@ -248,10 +259,10 @@
       start = this.x % 100;
       for (drawX = 0, _ref = canvas.width; drawX <= _ref; drawX += 100) {
         context.beginPath();
-        context.moveTo(drawX - start, 0);
+        context.moveTo(drawX - start, this.top);
         context.lineTo(drawX - start, this.horizon);
         context.moveTo(drawX - start, this.horizon);
-        context.lineTo(drawX - start + 100, canvas.height);
+        context.lineTo(drawX - start + 75, this.bottom);
         context.closePath();
         context.stroke();
       }
@@ -268,7 +279,7 @@
 
     Course.prototype.drawItem = function(context, drawX) {
       context.fillStyle = 'black';
-      return context.fillRect(drawX, 325, 30, 60);
+      return context.fillRect(drawX, this.bottom - 75, 30, 60);
     };
 
     return Course;
