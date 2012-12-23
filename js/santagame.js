@@ -227,6 +227,7 @@
       this.x = 0;
       this.items = {};
       this.edge = this.x + this.width;
+      this.horizon = 350;
     }
 
     Course.prototype.update = function() {
@@ -238,12 +239,19 @@
 
     Course.prototype.draw = function(context, canvas) {
       var drawX, start, _ref, _ref2, _ref3, _results;
-      start = this.x % 100;
       context.strokeStyle = 'black';
+      context.beginPath();
+      context.moveTo(0, this.horizon);
+      context.lineTo(canvas.width, this.horizon);
+      context.closePath();
+      context.stroke();
+      start = this.x % 100;
       for (drawX = 0, _ref = canvas.width; drawX <= _ref; drawX += 100) {
         context.beginPath();
         context.moveTo(drawX - start, 0);
-        context.lineTo(drawX - start, canvas.height);
+        context.lineTo(drawX - start, this.horizon);
+        context.moveTo(drawX - start, this.horizon);
+        context.lineTo(drawX - start + 100, canvas.height);
         context.closePath();
         context.stroke();
       }
@@ -260,7 +268,7 @@
 
     Course.prototype.drawItem = function(context, drawX) {
       context.fillStyle = 'black';
-      return context.fillRect(drawX, 350, 30, 30);
+      return context.fillRect(drawX, 325, 30, 60);
     };
 
     return Course;

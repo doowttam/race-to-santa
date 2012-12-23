@@ -194,9 +194,10 @@ class Foot
 
 class Course
   constructor: (@width) ->
-    @x     = 0
-    @items = {}
-    @edge  = @x + @width
+    @x       = 0
+    @items   = {}
+    @edge    = @x + @width
+    @horizon = 350
 
   update: ->
     if @x + @width > @edge
@@ -205,20 +206,31 @@ class Course
         @items[@edge] = true
 
   draw: (context, canvas) ->
-    start = @x % 100
     context.strokeStyle = 'black'
 
+    context.beginPath()
+    context.moveTo 0, @horizon
+    context.lineTo canvas.width, @horizon
+    context.closePath()
+
+    context.stroke()
+
+    start = @x % 100
     for drawX in [0..canvas.width] by 100
       context.beginPath()
       context.moveTo drawX - start, 0
-      context.lineTo drawX - start, canvas.height
+      context.lineTo drawX - start, @horizon
+      context.moveTo drawX - start, @horizon
+      context.lineTo drawX - start + 100, canvas.height
       context.closePath()
 
       context.stroke()
+
+
 
     for drawX in [@x..@x + @width]
       @drawItem(context, drawX - @x) if @items[drawX]
 
   drawItem: (context, drawX) ->
     context.fillStyle = 'black'
-    context.fillRect drawX, 350, 30, 30
+    context.fillRect drawX, 325, 30, 60
