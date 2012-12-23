@@ -20,7 +20,7 @@ class window.SantaGame
     @leftFoot  = new Foot 'LEFT'
     @rightFoot = new Foot 'RIGHT'
 
-    @course = new Course
+    @course = new Course @canvas.width
 
   resetCanvas: ->
     @canvas.width = @canvas.width
@@ -84,6 +84,8 @@ class window.SantaGame
 
     speed = Math.ceil( @momentum / 40)
     @course.x = @course.x + speed
+
+    @course.update()
 
   drawCircles: =>
     @context.fillStyle = 'purple'
@@ -191,17 +193,32 @@ class Foot
     context.stroke()
 
 class Course
-  constructor: ->
-    @x = 0
+  constructor: (@width) ->
+    @x     = 0
+    @items = {}
+    @edge  = @x + @width
+
+  update: ->
+    if @x + @width > @edge
+      @edge = @x + @width
+      if Math.random() < 0.01
+        @items[@edge] = true
 
   draw: (context, canvas) ->
-    start = @x % 50
+    start = @x % 100
     context.strokeStyle = 'black'
 
-    for drawX in [0..canvas.width] by 50
+    for drawX in [0..canvas.width] by 100
       context.beginPath()
       context.moveTo drawX - start, 0
       context.lineTo drawX - start, canvas.height
       context.closePath()
 
       context.stroke()
+
+    for drawX in [@x..@x + @width]
+      @drawItem(context, drawX - @x) if @items[drawX]
+
+  drawItem: (context, drawX) ->
+    context.fillStyle = 'black'
+    context.fillRect drawX, 350, 30, 30

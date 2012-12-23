@@ -30,7 +30,7 @@
       this.momentum = 100;
       this.leftFoot = new Foot('LEFT');
       this.rightFoot = new Foot('RIGHT');
-      this.course = new Course;
+      this.course = new Course(this.canvas.width);
     }
 
     SantaGame.prototype.resetCanvas = function() {
@@ -80,7 +80,8 @@
       if (this.momentum > 0) this.momentum = this.momentum - 0.5;
       if (this.momentum > this.canvas.width) this.momentum = this.canvas.width;
       speed = Math.ceil(this.momentum / 40);
-      return this.course.x = this.course.x + speed;
+      this.course.x = this.course.x + speed;
+      return this.course.update();
     };
 
     SantaGame.prototype.drawCircles = function() {
@@ -221,23 +222,45 @@
 
   Course = (function() {
 
-    function Course() {
+    function Course(width) {
+      this.width = width;
       this.x = 0;
+      this.items = {};
+      this.edge = this.x + this.width;
     }
 
+    Course.prototype.update = function() {
+      if (this.x + this.width > this.edge) {
+        this.edge = this.x + this.width;
+        if (Math.random() < 0.01) return this.items[this.edge] = true;
+      }
+    };
+
     Course.prototype.draw = function(context, canvas) {
-      var drawX, start, _ref, _results;
-      start = this.x % 50;
+      var drawX, start, _ref, _ref2, _ref3, _results;
+      start = this.x % 100;
       context.strokeStyle = 'black';
-      _results = [];
-      for (drawX = 0, _ref = canvas.width; drawX <= _ref; drawX += 50) {
+      for (drawX = 0, _ref = canvas.width; drawX <= _ref; drawX += 100) {
         context.beginPath();
         context.moveTo(drawX - start, 0);
         context.lineTo(drawX - start, canvas.height);
         context.closePath();
-        _results.push(context.stroke());
+        context.stroke();
+      }
+      _results = [];
+      for (drawX = _ref2 = this.x, _ref3 = this.x + this.width; _ref2 <= _ref3 ? drawX <= _ref3 : drawX >= _ref3; _ref2 <= _ref3 ? drawX++ : drawX--) {
+        if (this.items[drawX]) {
+          _results.push(this.drawItem(context, drawX - this.x));
+        } else {
+          _results.push(void 0);
+        }
       }
       return _results;
+    };
+
+    Course.prototype.drawItem = function(context, drawX) {
+      context.fillStyle = 'black';
+      return context.fillRect(drawX, 350, 30, 30);
     };
 
     return Course;
