@@ -20,6 +20,8 @@ class window.SantaGame
     @leftFoot  = new Foot 'LEFT'
     @rightFoot = new Foot 'RIGHT'
 
+    @course = new Course
+
   resetCanvas: ->
     @canvas.width = @canvas.width
 
@@ -31,6 +33,8 @@ class window.SantaGame
 
     # Wipe canvas so we can draw on it
     @resetCanvas()
+
+    @course.draw @context, @canvas, 0
 
     # Draw main parts of UI
     @drawCircles()
@@ -78,28 +82,16 @@ class window.SantaGame
     if @momentum > @canvas.width
       @momentum = @canvas.width
 
-  drawCircles: =>
-    colorByRadius = (radius) ->
-      if radius > 130
-        'red'
-      else if radius > 100
-        'green'
-      else
-        'black'
+    speed = Math.ceil( @momentum / 40)
+    @course.x = @course.x + speed
 
+  drawCircles: =>
     @context.fillStyle = 'purple'
     @context.fillRect 0, 30, @momentum, 10
     @context.strokeStyle = 'black'
 
-    @context.beginPath()
-    @context.moveTo 200, 200
-    @context.lineTo 475, 200
-    @context.closePath()
-
-    @context.stroke()
-
-    @leftFoot.draw @context, 200, 200
-    @rightFoot.draw @context, 475, 200
+    @leftFoot.draw @context, 475, 75
+    @rightFoot.draw @context, 575, 75
 
 # Inspired by http://nokarma.org/2011/02/27/javascript-game-development-keyboard-input/index.html
 class Key
@@ -123,9 +115,12 @@ class Key
 
 class Foot
   constructor: (@foot, @position = 0) ->
-    @down   = false
-    @start  = 0
-    @radius = 5
+    @down        = false
+    @start       = 0
+    @radius      = 5
+    @maxRadius   = 130
+    @greatRadius = 100
+    @scale       = 0.3
 
   update: (key) ->
     if key.isDown key.codes[@foot]
@@ -152,26 +147,26 @@ class Foot
     strokeLength = @endStroke()
 
     # Too long!
-    if @radius > 130
+    if @radius > @maxRadius
       strokeLength = 20
-    else if @radius > 100
+    else if @radius > @greatRadius
       strokeLength = strokeLength + 20
 
     return strokeLength
 
   colorByRadius: (radius) ->
-    if radius > 130
+    if radius > @maxRadius
       'red'
-    else if radius > 100
+    else if radius > @greatRadius
       'green'
     else
       'black'
 
   draw: (context, x, y) ->
-    y = y + (@position * -50)
+    y = y + (@position * (-50 * @scale))
 
     context.beginPath()
-    context.arc x, y, @radius, 0, Math.PI * 2, false
+    context.arc x, y, @radius * @scale, 0, Math.PI * 2, false
     context.closePath()
 
     context.fillStyle = @colorByRadius @radius
@@ -182,7 +177,7 @@ class Foot
     context.strokeStyle = 'gray'
 
     context.beginPath()
-    context.arc x, y, 100, 0, Math.PI * 2, false
+    context.arc x, y, @greatRadius * @scale, 0, Math.PI * 2, false
     context.closePath()
 
     context.stroke()
@@ -190,9 +185,23 @@ class Foot
     context.strokeStyle = 'gray'
 
     context.beginPath()
-    context.arc x, y, 130, 0, Math.PI * 2, false
+    context.arc x, y, @maxRadius * @scale, 0, Math.PI * 2, false
     context.closePath()
 
     context.stroke()
 
+class Course
+  constructor: ->
+    @x = 0
 
+  draw: (context, canvas) ->
+    start = @x % 50
+    context.strokeStyle = 'black'
+
+    for drawX in [0..canvas.width] by 50
+      context.beginPath()
+      context.moveTo drawX - start, 0
+      context.lineTo drawX - start, canvas.height
+      context.closePath()
+
+      context.stroke()

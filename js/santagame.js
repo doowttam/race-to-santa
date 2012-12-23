@@ -1,5 +1,5 @@
 (function() {
-  var Foot, Key,
+  var Course, Foot, Key,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   window.SantaGame = (function() {
@@ -30,6 +30,7 @@
       this.momentum = 100;
       this.leftFoot = new Foot('LEFT');
       this.rightFoot = new Foot('RIGHT');
+      this.course = new Course;
     }
 
     SantaGame.prototype.resetCanvas = function() {
@@ -40,6 +41,7 @@
       this.frame++;
       this.update();
       this.resetCanvas();
+      this.course.draw(this.context, this.canvas, 0);
       this.drawCircles();
       if (this.running) return requestAnimationFrame(this.drawFrame);
     };
@@ -56,7 +58,7 @@
     };
 
     SantaGame.prototype.update = function() {
-      var leftWasDown, rightWasDown;
+      var leftWasDown, rightWasDown, speed;
       leftWasDown = this.leftFoot.down;
       rightWasDown = this.rightFoot.down;
       this.leftFoot.update(this.key);
@@ -76,32 +78,17 @@
         this.leftFoot.reposition();
       }
       if (this.momentum > 0) this.momentum = this.momentum - 0.5;
-      if (this.momentum > this.canvas.width) {
-        return this.momentum = this.canvas.width;
-      }
+      if (this.momentum > this.canvas.width) this.momentum = this.canvas.width;
+      speed = Math.ceil(this.momentum / 40);
+      return this.course.x = this.course.x + speed;
     };
 
     SantaGame.prototype.drawCircles = function() {
-      var colorByRadius;
-      colorByRadius = function(radius) {
-        if (radius > 130) {
-          return 'red';
-        } else if (radius > 100) {
-          return 'green';
-        } else {
-          return 'black';
-        }
-      };
       this.context.fillStyle = 'purple';
       this.context.fillRect(0, 30, this.momentum, 10);
       this.context.strokeStyle = 'black';
-      this.context.beginPath();
-      this.context.moveTo(200, 200);
-      this.context.lineTo(475, 200);
-      this.context.closePath();
-      this.context.stroke();
-      this.leftFoot.draw(this.context, 200, 200);
-      return this.rightFoot.draw(this.context, 475, 200);
+      this.leftFoot.draw(this.context, 475, 75);
+      return this.rightFoot.draw(this.context, 575, 75);
     };
 
     return SantaGame;
@@ -150,6 +137,9 @@
       this.down = false;
       this.start = 0;
       this.radius = 5;
+      this.maxRadius = 130;
+      this.greatRadius = 100;
+      this.scale = 0.3;
     }
 
     Foot.prototype.update = function(key) {
@@ -187,18 +177,18 @@
     Foot.prototype.finishStroke = function() {
       var strokeLength;
       strokeLength = this.endStroke();
-      if (this.radius > 130) {
+      if (this.radius > this.maxRadius) {
         strokeLength = 20;
-      } else if (this.radius > 100) {
+      } else if (this.radius > this.greatRadius) {
         strokeLength = strokeLength + 20;
       }
       return strokeLength;
     };
 
     Foot.prototype.colorByRadius = function(radius) {
-      if (radius > 130) {
+      if (radius > this.maxRadius) {
         return 'red';
-      } else if (radius > 100) {
+      } else if (radius > this.greatRadius) {
         return 'green';
       } else {
         return 'black';
@@ -206,26 +196,51 @@
     };
 
     Foot.prototype.draw = function(context, x, y) {
-      y = y + (this.position * -50);
+      y = y + (this.position * (-50 * this.scale));
       context.beginPath();
-      context.arc(x, y, this.radius, 0, Math.PI * 2, false);
+      context.arc(x, y, this.radius * this.scale, 0, Math.PI * 2, false);
       context.closePath();
       context.fillStyle = this.colorByRadius(this.radius);
       context.stroke();
       context.fill();
       context.strokeStyle = 'gray';
       context.beginPath();
-      context.arc(x, y, 100, 0, Math.PI * 2, false);
+      context.arc(x, y, this.greatRadius * this.scale, 0, Math.PI * 2, false);
       context.closePath();
       context.stroke();
       context.strokeStyle = 'gray';
       context.beginPath();
-      context.arc(x, y, 130, 0, Math.PI * 2, false);
+      context.arc(x, y, this.maxRadius * this.scale, 0, Math.PI * 2, false);
       context.closePath();
       return context.stroke();
     };
 
     return Foot;
+
+  })();
+
+  Course = (function() {
+
+    function Course() {
+      this.x = 0;
+    }
+
+    Course.prototype.draw = function(context, canvas) {
+      var drawX, start, _ref, _results;
+      start = this.x % 50;
+      context.strokeStyle = 'black';
+      _results = [];
+      for (drawX = 0, _ref = canvas.width; drawX <= _ref; drawX += 50) {
+        context.beginPath();
+        context.moveTo(drawX - start, 0);
+        context.lineTo(drawX - start, canvas.height);
+        context.closePath();
+        _results.push(context.stroke());
+      }
+      return _results;
+    };
+
+    return Course;
 
   })();
 
