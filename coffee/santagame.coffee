@@ -23,6 +23,17 @@ class window.SantaGame
     @player1.watchPlayer @player2
     @player2.watchPlayer @player1
 
+    @drawOpener()
+
+  drawOpener: ->
+    @context.fillStyle = 'rgba(0,0,0,.7)'
+    @context.fillRect 0, 0, @canvas.width, @canvas.height
+
+    @context.fillStyle = 'white'
+    @context.font = 'bold 48px sans-serif'
+    @context.textAlign = 'center'
+    @context.fillText 'Race to Santa', @canvas.width / 2, 200
+
   resetCanvas: ->
     @canvas.width = @canvas.width
 
@@ -40,7 +51,10 @@ class window.SantaGame
 
     @drawHud()
 
-    @checkWin()
+    if !@running
+      @drawPause()
+    else
+      @checkWin()
 
     # Continue running if we should
     requestAnimationFrame @drawFrame if @running
@@ -73,8 +87,38 @@ class window.SantaGame
   play: =>
     return if @running
 
-    @running = true
-    requestAnimationFrame @drawFrame
+    @buttons.start.disabled = true
+
+    that = @
+    countdown = (count) ->
+      that.resetCanvas()
+
+      that.context.fillStyle = 'rgba(0,0,0,.7)'
+      that.context.fillRect 0, 0, that.canvas.width, that.canvas.height
+      that.context
+      that.context.fillStyle = 'white'
+      that.context.font = 'bold 48px sans-serif'
+      that.context.textAlign = 'center'
+      that.context.fillText "#{count}...", that.canvas.width / 2, 200
+
+      if count == 0
+        that.running = true
+        requestAnimationFrame that.drawFrame
+      else
+        setTimeout ->
+          countdown --count
+        , 1000
+
+    countdown(3)
+
+  drawPause: =>
+    @context.fillStyle = 'rgba(0,0,0,.7)'
+    @context.fillRect 0, 0, @canvas.width, @canvas.height
+
+    @context.fillStyle = 'white'
+    @context.font = 'bold 48px sans-serif'
+    @context.textAlign = 'center'
+    @context.fillText 'Paused', @canvas.width / 2, 200
 
   pause: =>
     @running = !@running

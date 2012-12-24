@@ -12,6 +12,7 @@
       this.win = win;
       this.winGame = __bind(this.winGame, this);
       this.pause = __bind(this.pause, this);
+      this.drawPause = __bind(this.drawPause, this);
       this.play = __bind(this.play, this);
       this.drawFrame = __bind(this.drawFrame, this);
       this.canvas = this.doc.getElementById('game_canvas');
@@ -34,7 +35,17 @@
       this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.canvas, this.key, 100, this.course);
       this.player1.watchPlayer(this.player2);
       this.player2.watchPlayer(this.player1);
+      this.drawOpener();
     }
+
+    SantaGame.prototype.drawOpener = function() {
+      this.context.fillStyle = 'rgba(0,0,0,.7)';
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 48px sans-serif';
+      this.context.textAlign = 'center';
+      return this.context.fillText('Race to Santa', this.canvas.width / 2, 200);
+    };
 
     SantaGame.prototype.resetCanvas = function() {
       return this.canvas.width = this.canvas.width;
@@ -47,7 +58,11 @@
       this.player1.draw(this.context, this.canvas);
       this.player2.draw(this.context, this.canvas);
       this.drawHud();
-      this.checkWin();
+      if (!this.running) {
+        this.drawPause();
+      } else {
+        this.checkWin();
+      }
       if (this.running) return requestAnimationFrame(this.drawFrame);
     };
 
@@ -73,9 +88,38 @@
     };
 
     SantaGame.prototype.play = function() {
+      var countdown, that;
       if (this.running) return;
-      this.running = true;
-      return requestAnimationFrame(this.drawFrame);
+      this.buttons.start.disabled = true;
+      that = this;
+      countdown = function(count) {
+        that.resetCanvas();
+        that.context.fillStyle = 'rgba(0,0,0,.7)';
+        that.context.fillRect(0, 0, that.canvas.width, that.canvas.height);
+        that.context;
+        that.context.fillStyle = 'white';
+        that.context.font = 'bold 48px sans-serif';
+        that.context.textAlign = 'center';
+        that.context.fillText("" + count + "...", that.canvas.width / 2, 200);
+        if (count === 0) {
+          that.running = true;
+          return requestAnimationFrame(that.drawFrame);
+        } else {
+          return setTimeout(function() {
+            return countdown(--count);
+          }, 1000);
+        }
+      };
+      return countdown(3);
+    };
+
+    SantaGame.prototype.drawPause = function() {
+      this.context.fillStyle = 'rgba(0,0,0,.7)';
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 48px sans-serif';
+      this.context.textAlign = 'center';
+      return this.context.fillText('Paused', this.canvas.width / 2, 200);
     };
 
     SantaGame.prototype.pause = function() {
