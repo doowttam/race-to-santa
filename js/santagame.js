@@ -207,9 +207,7 @@
       this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer, this.padding);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
-      this.body.draw(context, this.padding, this.bottom - 20 - this.elevation, 1.5);
-      context.fillStyle = 'purple';
-      return context.fillRect(0, this.top + 30, this.momentum, 10);
+      return this.body.draw(context, this.padding, this.bottom - 20 - this.elevation, 1.5);
     };
 
     return Player;

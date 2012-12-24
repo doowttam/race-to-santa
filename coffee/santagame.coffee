@@ -181,9 +181,6 @@ class Player
     @rightFoot.draw context, canvas.width - 100, @top + 75
     @body.draw context, @padding, @bottom - 20 - @elevation, 1.5
 
-    context.fillStyle = 'purple'
-    context.fillRect 0, @top + 30, @momentum, 10
-
 class Foot
   constructor: (@foot, @position = 0) ->
     @down        = false
