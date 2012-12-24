@@ -60,6 +60,8 @@ class window.SantaGame
     requestAnimationFrame @drawFrame if @running
 
   drawHud: ->
+    @context.strokeStyle = 'black'
+
     @context.beginPath()
     @context.moveTo 0, 200
     @context.lineTo @canvas.width, 200
@@ -486,10 +488,42 @@ class Tree extends Entity
 class PlayerBody extends Entity
   # Draw the player with x being their front, rather than back
   draw: (context, drawX, drawY, slope, lane) ->
-    context.strokeStyle = 'black'
+    context.strokeStyle = if lane == 1 then 'blue' else 'orange'
 
     [drawX, drawY] = @shift (lane * 20), drawX, drawY, slope
-    super context, drawX - @depth, drawY, slope
+
+    drawX = drawX - @depth
+
+    x1 = drawX
+    y1 = drawY
+    x2 = drawX + @width * slope
+    y2 = drawY + @width
+
+    context.fillStyle = 'white'
+
+    context.beginPath()
+
+    slant = 20
+
+    context.moveTo x1 + slant, y1 - @height
+    context.lineTo x2 + slant, y2 - @height
+    context.lineTo x2, y2
+    context.lineTo x1, y1
+    context.lineTo x1 + slant, y1 - @height
+
+    context.moveTo x1 + slant, y1 - @height
+    context.lineTo x1 + @depth + slant, y1 - @height
+    context.lineTo x2 + @depth + slant, y2 - @height
+    context.lineTo x2 + @depth, y2
+    context.lineTo x2, y2
+    context.moveTo x2 + slant, y2 - @height
+    context.lineTo x2 + @depth + slant, y2 - @height
+    context.moveTo x1 + slant, y1 - @height
+
+    context.closePath()
+
+    context.fill()
+    context.stroke()
 
 class RoughPatch extends Entity
   draw: (context, drawX, drawY, slope) ->

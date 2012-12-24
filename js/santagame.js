@@ -66,6 +66,7 @@
 
     SantaGame.prototype.drawHud = function() {
       var player1Pos, player2Pos;
+      this.context.strokeStyle = 'black';
       this.context.beginPath();
       this.context.moveTo(0, 200);
       this.context.lineTo(this.canvas.width, 200);
@@ -557,10 +558,33 @@
     }
 
     PlayerBody.prototype.draw = function(context, drawX, drawY, slope, lane) {
-      var _ref;
-      context.strokeStyle = 'black';
+      var slant, x1, x2, y1, y2, _ref;
+      context.strokeStyle = lane === 1 ? 'blue' : 'orange';
       _ref = this.shift(lane * 20, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
-      return PlayerBody.__super__.draw.call(this, context, drawX - this.depth, drawY, slope);
+      drawX = drawX - this.depth;
+      x1 = drawX;
+      y1 = drawY;
+      x2 = drawX + this.width * slope;
+      y2 = drawY + this.width;
+      context.fillStyle = 'white';
+      context.beginPath();
+      slant = 20;
+      context.moveTo(x1 + slant, y1 - this.height);
+      context.lineTo(x2 + slant, y2 - this.height);
+      context.lineTo(x2, y2);
+      context.lineTo(x1, y1);
+      context.lineTo(x1 + slant, y1 - this.height);
+      context.moveTo(x1 + slant, y1 - this.height);
+      context.lineTo(x1 + this.depth + slant, y1 - this.height);
+      context.lineTo(x2 + this.depth + slant, y2 - this.height);
+      context.lineTo(x2 + this.depth, y2);
+      context.lineTo(x2, y2);
+      context.moveTo(x2 + slant, y2 - this.height);
+      context.lineTo(x2 + this.depth + slant, y2 - this.height);
+      context.moveTo(x1 + slant, y1 - this.height);
+      context.closePath();
+      context.fill();
+      return context.stroke();
     };
 
     return PlayerBody;
