@@ -29,8 +29,8 @@
         return _this.key.onKeyDown(e);
       };
       this.course = new Course(this.canvas.width);
-      this.player1 = new Player('LEFT', 'RIGHT', 0, 200, this.canvas, this.key, 100, this.course);
-      this.player2 = new Player('A', 'D', 200, this.canvas.height, this.canvas, this.key, 100, this.course);
+      this.player1 = new Player('LEFT', 'RIGHT', 'DOWN', 0, 200, this.canvas, this.key, 100, this.course);
+      this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.canvas, this.key, 100, this.course);
       this.player1.watchPlayer(this.player2);
       this.player2.watchPlayer(this.player1);
     }
@@ -90,7 +90,8 @@
       'DOWN': 40,
       'SPACE': 32,
       'A': 65,
-      'D': 68
+      'D': 68,
+      'S': 83
     };
 
     Key.prototype.isDown = function(keyCode) {
@@ -111,9 +112,10 @@
 
   Player = (function() {
 
-    function Player(leftKey, rightKey, top, bottom, canvas, key, momentum, course) {
+    function Player(leftKey, rightKey, jumpKey, top, bottom, canvas, key, momentum, course) {
       this.leftKey = leftKey;
       this.rightKey = rightKey;
+      this.jumpKey = jumpKey;
       this.top = top;
       this.bottom = bottom;
       this.canvas = canvas;
@@ -125,6 +127,9 @@
       this.x = 0;
       this.body = new PlayerBody(40, 5, 20);
       this.padding = 50;
+      this.jumping = false;
+      this.elevation = 0;
+      this.jumpHeight = 50;
     }
 
     Player.prototype.watchPlayer = function(otherPlayer) {
@@ -135,8 +140,24 @@
       var leftWasDown, rightWasDown, speed;
       leftWasDown = this.leftFoot.down;
       rightWasDown = this.rightFoot.down;
-      this.leftFoot.update(this.key);
-      this.rightFoot.update(this.key);
+      if (this.key.isDown(this.key.codes[this.jumpKey]) && !this.jumping && !(this.elevation > 0)) {
+        this.jumping = true;
+        this.leftFoot.reset();
+        this.rightFoot.reset();
+      }
+      if (this.jumping) {
+        if (this.elevation < this.jumpHeight) {
+          this.elevation = this.elevation + 3;
+        } else {
+          this.jumping = false;
+        }
+      } else if (this.elevation > 0) {
+        this.elevation = this.elevation - 3;
+      }
+      if (!(this.elevation > 0)) {
+        this.leftFoot.update(this.key);
+        this.rightFoot.update(this.key);
+      }
       if (leftWasDown && !this.leftFoot.down) {
         this.momentum = this.momentum + this.leftFoot.finishStroke();
       } else if (!leftWasDown && this.leftFoot.down) {
@@ -162,7 +183,7 @@
       this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
-      this.body.draw(context, this.padding, this.bottom - 60, 1.5);
+      this.body.draw(context, this.padding, this.bottom - 60 - this.elevation, 1.5);
       context.fillStyle = 'purple';
       return context.fillRect(0, this.top + 30, this.momentum, 10);
     };
@@ -206,6 +227,13 @@
 
     Foot.prototype.reposition = function() {
       return this.position = 0;
+    };
+
+    Foot.prototype.reset = function() {
+      this.reposition();
+      this.down = false;
+      this.start = 0;
+      return this.radius = 5;
     };
 
     Foot.prototype.addToStroke = function(length) {
@@ -304,7 +332,7 @@
         }
       }
       if (otherPlayer && otherPlayer.x >= xOffset - otherPlayer.padding && otherPlayer.x <= xOffset + this.width) {
-        return otherPlayer.body.draw(context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60, 1.5);
+        return otherPlayer.body.draw(context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60 - otherPlayer.elevation, 1.5);
       }
     };
 

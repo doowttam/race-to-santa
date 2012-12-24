@@ -17,8 +17,8 @@ class window.SantaGame
 
     @course  = new Course @canvas.width
 
-    @player1 = new Player 'LEFT', 'RIGHT', 0, 200, @canvas, @key, 100, @course
-    @player2 = new Player 'A', 'D', 200, @canvas.height, @canvas, @key, 100, @course
+    @player1 = new Player 'LEFT', 'RIGHT', 'DOWN', 0, 200, @canvas, @key, 100, @course
+    @player2 = new Player 'A', 'D', 'S', 200, @canvas.height, @canvas, @key, 100, @course
 
     @player1.watchPlayer @player2
     @player2.watchPlayer @player1
@@ -74,6 +74,7 @@ class Key
     'SPACE': 32
     'A': 65
     'D': 68
+    'S': 83
 
   isDown: (keyCode) =>
     return @pressed[keyCode]
@@ -85,12 +86,15 @@ class Key
     delete @pressed[event.keyCode]
 
 class Player
-  constructor: (@leftKey, @rightKey, @top, @bottom, @canvas, @key, @momentum, @course) ->
-    @leftFoot  = new Foot @leftKey
-    @rightFoot = new Foot @rightKey
-    @x         = 0
-    @body      = new PlayerBody 40, 5, 20
-    @padding   = 50
+  constructor: (@leftKey, @rightKey, @jumpKey, @top, @bottom, @canvas, @key, @momentum, @course) ->
+    @leftFoot   = new Foot @leftKey
+    @rightFoot  = new Foot @rightKey
+    @x          = 0
+    @body       = new PlayerBody 40, 5, 20
+    @padding    = 50
+    @jumping    = false
+    @elevation  = 0
+    @jumpHeight = 50
 
   watchPlayer: (@otherPlayer) ->
 
@@ -98,8 +102,22 @@ class Player
     leftWasDown  = @leftFoot.down
     rightWasDown = @rightFoot.down
 
-    @leftFoot.update @key
-    @rightFoot.update @key
+    if @key.isDown(@key.codes[@jumpKey]) and !@jumping and !(@elevation > 0)
+      @jumping = true
+      @leftFoot.reset()
+      @rightFoot.reset()
+
+    if @jumping
+      if @elevation < @jumpHeight
+        @elevation = @elevation + 3
+      else
+        @jumping = false
+    else if @elevation > 0
+      @elevation = @elevation - 3
+
+    if !(@elevation > 0)
+      @leftFoot.update @key
+      @rightFoot.update @key
 
     if leftWasDown and !@leftFoot.down
       @momentum = @momentum + @leftFoot.finishStroke()
@@ -133,7 +151,7 @@ class Player
     @course.draw context, canvas, @top, @bottom, @x, @otherPlayer
     @leftFoot.draw context, canvas.width - 200, @top + 75
     @rightFoot.draw context, canvas.width - 100, @top + 75
-    @body.draw context, @padding, @bottom - 60, 1.5
+    @body.draw context, @padding, @bottom - 60 -@elevation, 1.5
 
     context.fillStyle = 'purple'
     context.fillRect 0, @top + 30, @momentum, 10
@@ -164,6 +182,11 @@ class Foot
     @radius - @start
 
   reposition: -> @position = 0
+  reset: ->
+    @reposition()
+    @down   = false
+    @start  = 0
+    @radius = 5
 
   addToStroke:      (length) -> @radius = @radius + length
   removeFromStroke: (length) -> @radius = @radius - length
@@ -254,7 +277,7 @@ class Course
       @items[drawX].draw(context, drawX - xOffset, bottom - 110, @slope) if @items[drawX]
 
     if otherPlayer and otherPlayer.x >= xOffset - otherPlayer.padding and otherPlayer.x <= xOffset + @width
-      otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60, 1.5
+      otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60 - otherPlayer.elevation, 1.5
 
 class Entity
   constructor: (@height, @width, @depth) ->
