@@ -31,6 +31,8 @@
       this.course = new Course(this.canvas.width);
       this.player1 = new Player('LEFT', 'RIGHT', 0, 200, this.canvas, this.key, 100, this.course);
       this.player2 = new Player('A', 'D', 200, this.canvas.height, this.canvas, this.key, 100, this.course);
+      this.player1.watchPlayer(this.player2);
+      this.player2.watchPlayer(this.player1);
     }
 
     SantaGame.prototype.resetCanvas = function() {
@@ -124,6 +126,10 @@
       this.body = new PlayerBody(40, 5, 20);
     }
 
+    Player.prototype.watchPlayer = function(otherPlayer) {
+      this.otherPlayer = otherPlayer;
+    };
+
     Player.prototype.update = function() {
       var leftWasDown, rightWasDown, speed;
       leftWasDown = this.leftFoot.down;
@@ -152,7 +158,7 @@
     };
 
     Player.prototype.draw = function(context, canvas) {
-      this.course.draw(context, canvas, this.top, this.bottom, this.x);
+      this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
       this.body.draw(context, 20, this.bottom - 60, 1.5);
@@ -273,8 +279,8 @@
       }
     };
 
-    Course.prototype.draw = function(context, canvas, top, bottom, x) {
-      var drawX, horizon, start, _ref, _ref2, _results;
+    Course.prototype.draw = function(context, canvas, top, bottom, xOffset, otherPlayer) {
+      var drawX, horizon, start, _ref, _ref2;
       horizon = bottom - 50;
       context.strokeStyle = 'black';
       context.beginPath();
@@ -282,7 +288,7 @@
       context.lineTo(canvas.width, horizon);
       context.closePath();
       context.stroke();
-      start = x % 100;
+      start = xOffset % 100;
       for (drawX = 0, _ref = canvas.width + 100; drawX <= _ref; drawX += 100) {
         context.beginPath();
         context.moveTo(drawX - start, top);
@@ -292,15 +298,14 @@
         context.closePath();
         context.stroke();
       }
-      _results = [];
-      for (drawX = x, _ref2 = x + this.width; x <= _ref2 ? drawX <= _ref2 : drawX >= _ref2; x <= _ref2 ? drawX++ : drawX--) {
+      for (drawX = xOffset, _ref2 = xOffset + this.width; xOffset <= _ref2 ? drawX <= _ref2 : drawX >= _ref2; xOffset <= _ref2 ? drawX++ : drawX--) {
         if (this.items[drawX]) {
-          _results.push(this.items[drawX].draw(context, drawX - x, bottom - 110, this.slope));
-        } else {
-          _results.push(void 0);
+          this.items[drawX].draw(context, drawX - xOffset, bottom - 110, this.slope);
         }
       }
-      return _results;
+      if (otherPlayer && otherPlayer.x >= xOffset && otherPlayer.x <= xOffset + this.width) {
+        return otherPlayer.body.draw(context, otherPlayer.x - xOffset, bottom - 60, 1.5);
+      }
     };
 
     return Course;

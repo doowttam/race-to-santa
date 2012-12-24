@@ -16,8 +16,12 @@ class window.SantaGame
       @key.onKeyDown e
 
     @course  = new Course @canvas.width
+
     @player1 = new Player 'LEFT', 'RIGHT', 0, 200, @canvas, @key, 100, @course
     @player2 = new Player 'A', 'D', 200, @canvas.height, @canvas, @key, 100, @course
+
+    @player1.watchPlayer @player2
+    @player2.watchPlayer @player1
 
   resetCanvas: ->
     @canvas.width = @canvas.width
@@ -87,6 +91,8 @@ class Player
     @x         = 0
     @body      = new PlayerBody 40, 5, 20
 
+  watchPlayer: (@otherPlayer) ->
+
   update: ->
     leftWasDown  = @leftFoot.down
     rightWasDown = @rightFoot.down
@@ -123,7 +129,7 @@ class Player
     @course.update @x
 
   draw: (context, canvas) ->
-    @course.draw context, canvas, @top, @bottom, @x
+    @course.draw context, canvas, @top, @bottom, @x, @otherPlayer
     @leftFoot.draw context, canvas.width - 200, @top + 75
     @rightFoot.draw context, canvas.width - 100, @top + 75
     @body.draw context, 20, @bottom - 60, 1.5
@@ -221,7 +227,7 @@ class Course
       if Math.random() < 0.005
         @items[@edge] = new Tree 70, 10, 20
 
-  draw: (context, canvas, top, bottom, x) ->
+  draw: (context, canvas, top, bottom, xOffset, otherPlayer) ->
     horizon = bottom - 50
 
     context.strokeStyle = 'black'
@@ -233,7 +239,7 @@ class Course
 
     context.stroke()
 
-    start = x % 100
+    start = xOffset % 100
     for drawX in [0..canvas.width + 100] by 100
       context.beginPath()
       context.moveTo drawX - start, top
@@ -244,8 +250,12 @@ class Course
 
       context.stroke()
 
-    for drawX in [x..x + @width]
-      @items[drawX].draw(context, drawX - x, bottom - 110, @slope) if @items[drawX]
+    for drawX in [xOffset..xOffset + @width]
+      @items[drawX].draw(context, drawX - xOffset, bottom - 110, @slope) if @items[drawX]
+
+
+    if otherPlayer and otherPlayer.x >= xOffset and otherPlayer.x <= xOffset + @width
+      otherPlayer.body.draw context, otherPlayer.x - xOffset, bottom - 60, 1.5
 
 class Entity
   constructor: (@height, @width, @depth) ->
