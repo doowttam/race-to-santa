@@ -405,7 +405,7 @@ class Course
     @slope    = 1.5
     @lastItem = 0
 
-    end    = 100000
+    end    = 60000
     @end   = end
     @items = {}
     @items[end]      = new End 0, 70, 1

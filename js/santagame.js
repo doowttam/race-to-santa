@@ -446,7 +446,7 @@
       this.edge = this.width;
       this.slope = 1.5;
       this.lastItem = 0;
-      end = 100000;
+      end = 60000;
       this.end = end;
       this.items = {};
       this.items[end] = new End(0, 70, 1);
