@@ -151,7 +151,7 @@ class Player
     @course.draw context, canvas, @top, @bottom, @x, @otherPlayer
     @leftFoot.draw context, canvas.width - 200, @top + 75
     @rightFoot.draw context, canvas.width - 100, @top + 75
-    @body.draw context, @padding, @bottom - 60 -@elevation, 1.5
+    @body.draw context, @padding, @bottom - 20 - @elevation, 1.5
 
     context.fillStyle = 'purple'
     context.fillRect 0, @top + 30, @momentum, 10
@@ -249,6 +249,8 @@ class Course
       @edge = x + @width
       if Math.random() < 0.005
         @items[@edge] = new Tree 70, 10, 20
+      else if Math.random() < 0.005
+        @items[@edge] = new RoughPatch 0, 35, 30
 
   draw: (context, canvas, top, bottom, xOffset, otherPlayer) ->
     horizon = bottom - 50
@@ -274,10 +276,10 @@ class Course
       context.stroke()
 
     for drawX in [(xOffset - 50)..xOffset + @width]
-      @items[drawX].draw(context, drawX - xOffset, bottom - 110, @slope) if @items[drawX]
+      @items[drawX].draw(context, drawX - xOffset, bottom - 45, @slope) if @items[drawX]
 
     if otherPlayer and otherPlayer.x >= xOffset - otherPlayer.padding and otherPlayer.x <= xOffset + @width
-      otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60 - otherPlayer.elevation, 1.5
+      otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 20 - otherPlayer.elevation, 1.5
 
 class Entity
   constructor: (@height, @width, @depth) ->
@@ -293,21 +295,20 @@ class Entity
 
     context.beginPath()
 
-    # Trunk
-    context.moveTo x1, y1
+    context.moveTo x1, y1 - @height
+    context.lineTo x2, y2 - @height
     context.lineTo x2, y2
-    context.lineTo x2, y2 + @height
-    context.lineTo x1, y1 + @height
     context.lineTo x1, y1
+    context.lineTo x1, y1 - @height
 
-    context.moveTo x1, y1
-    context.lineTo x1 + @depth, y1
+    context.moveTo x1, y1 - @height
+    context.lineTo x1 + @depth, y1 - @height
+    context.lineTo x2 + @depth, y2 - @height
     context.lineTo x2 + @depth, y2
-    context.lineTo x2 + @depth, y2 + @height
-    context.lineTo x2, y2 + @height
-    context.moveTo x2, y2
-    context.lineTo x2 + @depth, y2
-    context.moveTo x1, y1
+    context.lineTo x2, y2
+    context.moveTo x2, y2 - @height
+    context.lineTo x2 + @depth, y2 - @height
+    context.moveTo x1, y1 - @height
 
     context.closePath()
 
@@ -316,4 +317,7 @@ class Entity
 class Tree extends Entity
 
 class PlayerBody extends Entity
+  # Draw the player with x being their front, rather than back
   draw: (context, drawX, drawY, slope) -> super context, drawX - @depth, drawY, slope
+
+class RoughPatch extends Entity

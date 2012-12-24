@@ -1,5 +1,5 @@
 (function() {
-  var Course, Entity, Foot, Key, Player, PlayerBody, Tree,
+  var Course, Entity, Foot, Key, Player, PlayerBody, RoughPatch, Tree,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
@@ -183,7 +183,7 @@
       this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
-      this.body.draw(context, this.padding, this.bottom - 60 - this.elevation, 1.5);
+      this.body.draw(context, this.padding, this.bottom - 20 - this.elevation, 1.5);
       context.fillStyle = 'purple';
       return context.fillRect(0, this.top + 30, this.momentum, 10);
     };
@@ -303,6 +303,8 @@
         this.edge = x + this.width;
         if (Math.random() < 0.005) {
           return this.items[this.edge] = new Tree(70, 10, 20);
+        } else if (Math.random() < 0.005) {
+          return this.items[this.edge] = new RoughPatch(0, 35, 30);
         }
       }
     };
@@ -328,11 +330,11 @@
       }
       for (drawX = _ref2 = xOffset - 50, _ref3 = xOffset + this.width; _ref2 <= _ref3 ? drawX <= _ref3 : drawX >= _ref3; _ref2 <= _ref3 ? drawX++ : drawX--) {
         if (this.items[drawX]) {
-          this.items[drawX].draw(context, drawX - xOffset, bottom - 110, this.slope);
+          this.items[drawX].draw(context, drawX - xOffset, bottom - 45, this.slope);
         }
       }
       if (otherPlayer && otherPlayer.x >= xOffset - otherPlayer.padding && otherPlayer.x <= xOffset + this.width) {
-        return otherPlayer.body.draw(context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60 - otherPlayer.elevation, 1.5);
+        return otherPlayer.body.draw(context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 20 - otherPlayer.elevation, 1.5);
       }
     };
 
@@ -357,19 +359,19 @@
       context.strokeStyle = 'black';
       context.fillStyle = 'black';
       context.beginPath();
-      context.moveTo(x1, y1);
+      context.moveTo(x1, y1 - this.height);
+      context.lineTo(x2, y2 - this.height);
       context.lineTo(x2, y2);
-      context.lineTo(x2, y2 + this.height);
-      context.lineTo(x1, y1 + this.height);
       context.lineTo(x1, y1);
-      context.moveTo(x1, y1);
-      context.lineTo(x1 + this.depth, y1);
+      context.lineTo(x1, y1 - this.height);
+      context.moveTo(x1, y1 - this.height);
+      context.lineTo(x1 + this.depth, y1 - this.height);
+      context.lineTo(x2 + this.depth, y2 - this.height);
       context.lineTo(x2 + this.depth, y2);
-      context.lineTo(x2 + this.depth, y2 + this.height);
-      context.lineTo(x2, y2 + this.height);
-      context.moveTo(x2, y2);
-      context.lineTo(x2 + this.depth, y2);
-      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.moveTo(x2, y2 - this.height);
+      context.lineTo(x2 + this.depth, y2 - this.height);
+      context.moveTo(x1, y1 - this.height);
       context.closePath();
       return context.stroke();
     };
@@ -403,6 +405,18 @@
     };
 
     return PlayerBody;
+
+  })(Entity);
+
+  RoughPatch = (function(_super) {
+
+    __extends(RoughPatch, _super);
+
+    function RoughPatch() {
+      RoughPatch.__super__.constructor.apply(this, arguments);
+    }
+
+    return RoughPatch;
 
   })(Entity);
 
