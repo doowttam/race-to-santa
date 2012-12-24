@@ -23,6 +23,11 @@ class window.SantaGame
     @player1.watchPlayer @player2
     @player2.watchPlayer @player1
 
+    # Initialize messages
+    @msg =
+      1: []
+      0: []
+
     @drawOpener()
 
   drawOpener: ->
@@ -33,6 +38,15 @@ class window.SantaGame
     @context.font = 'bold 48px sans-serif'
     @context.textAlign = 'center'
     @context.fillText 'Race to Santa', @canvas.width / 2, 200
+
+  # Could be refactored into general messaging, if we had more messages
+  addStumbleMessage: (lane) ->
+    @msg[lane].push "You stumbled! Push with your forward foot!"
+
+    that = @
+    setTimeout ->
+      that.msg[lane].shift()
+    , 3000
 
   resetCanvas: ->
     @canvas.width = @canvas.width
@@ -86,6 +100,24 @@ class window.SantaGame
     @context.textAlign = 'left'
     @context.fillText 'SANTA', @canvas.width - 46, 205
 
+    @checkMessages()
+
+  checkMessages: ->
+    that = @
+    drawMessage = (player) ->
+      msgArray   = that.msg[player.lane]
+      mostRecent = msgArray[msgArray.length - 1]
+
+      if mostRecent
+        that.context.fillStyle = 'red'
+        that.context.font = 'bold 16px sans-serif'
+        that.context.textAlign = 'center'
+        yPos = if player.lane == 1 then 50 else 250
+        that.context.fillText mostRecent, that.canvas.width / 2, yPos
+
+    drawMessage @player1
+    drawMessage @player2
+
   play: =>
     return if @running
 
@@ -97,7 +129,7 @@ class window.SantaGame
 
       that.context.fillStyle = 'rgba(0,0,0,.7)'
       that.context.fillRect 0, 0, that.canvas.width, that.canvas.height
-      that.context
+
       that.context.fillStyle = 'white'
       that.context.font = 'bold 48px sans-serif'
       that.context.textAlign = 'center'
@@ -140,6 +172,14 @@ class window.SantaGame
   update: ->
     @player1.update()
     @player2.update()
+
+    @checkStumble @player1
+    @checkStumble @player2
+
+  checkStumble: (player) ->
+    if player.stumbled
+      player.stumbled = false
+      @addStumbleMessage player.lane
 
   checkWin: ->
     # No ties, sorry
@@ -211,7 +251,10 @@ class Player
       @momentum = @momentum + @leftFoot.finishStroke()
     else if !leftWasDown and @leftFoot.down
       # Stumble!
-      @momentum = 20 if @leftFoot.position != 0
+      if @leftFoot.position != 0
+        @momentum = 20
+        @stumbled = true
+
       @leftFoot.startStroke()
       @rightFoot.reposition()
 
@@ -219,7 +262,10 @@ class Player
       @momentum = @momentum + @rightFoot.finishStroke()
     else if !rightWasDown and @rightFoot.down
       # Stumble!
-      @momentum = 20 if @rightFoot.position != 0
+      if @rightFoot.position != 0
+        @momentum = 20
+        @stumbled = true
+
       @rightFoot.startStroke()
       @leftFoot.reposition()
 

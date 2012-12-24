@@ -33,6 +33,10 @@
       this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.key, this.course, 0);
       this.player1.watchPlayer(this.player2);
       this.player2.watchPlayer(this.player1);
+      this.msg = {
+        1: [],
+        0: []
+      };
       this.drawOpener();
     }
 
@@ -43,6 +47,15 @@
       this.context.font = 'bold 48px sans-serif';
       this.context.textAlign = 'center';
       return this.context.fillText('Race to Santa', this.canvas.width / 2, 200);
+    };
+
+    SantaGame.prototype.addStumbleMessage = function(lane) {
+      var that;
+      this.msg[lane].push("You stumbled! Push with your forward foot!");
+      that = this;
+      return setTimeout(function() {
+        return that.msg[lane].shift();
+      }, 3000);
     };
 
     SantaGame.prototype.resetCanvas = function() {
@@ -83,7 +96,27 @@
       this.context.fillStyle = 'white';
       this.context.font = 'bold 12px sans-serif';
       this.context.textAlign = 'left';
-      return this.context.fillText('SANTA', this.canvas.width - 46, 205);
+      this.context.fillText('SANTA', this.canvas.width - 46, 205);
+      return this.checkMessages();
+    };
+
+    SantaGame.prototype.checkMessages = function() {
+      var drawMessage, that;
+      that = this;
+      drawMessage = function(player) {
+        var mostRecent, msgArray, yPos;
+        msgArray = that.msg[player.lane];
+        mostRecent = msgArray[msgArray.length - 1];
+        if (mostRecent) {
+          that.context.fillStyle = 'red';
+          that.context.font = 'bold 16px sans-serif';
+          that.context.textAlign = 'center';
+          yPos = player.lane === 1 ? 50 : 250;
+          return that.context.fillText(mostRecent, that.canvas.width / 2, yPos);
+        }
+      };
+      drawMessage(this.player1);
+      return drawMessage(this.player2);
     };
 
     SantaGame.prototype.play = function() {
@@ -95,7 +128,6 @@
         that.resetCanvas();
         that.context.fillStyle = 'rgba(0,0,0,.7)';
         that.context.fillRect(0, 0, that.canvas.width, that.canvas.height);
-        that.context;
         that.context.fillStyle = 'white';
         that.context.font = 'bold 48px sans-serif';
         that.context.textAlign = 'center';
@@ -138,7 +170,16 @@
 
     SantaGame.prototype.update = function() {
       this.player1.update();
-      return this.player2.update();
+      this.player2.update();
+      this.checkStumble(this.player1);
+      return this.checkStumble(this.player2);
+    };
+
+    SantaGame.prototype.checkStumble = function(player) {
+      if (player.stumbled) {
+        player.stumbled = false;
+        return this.addStumbleMessage(player.lane);
+      }
     };
 
     SantaGame.prototype.checkWin = function() {
@@ -238,14 +279,20 @@
       if (leftWasDown && !this.leftFoot.down) {
         this.momentum = this.momentum + this.leftFoot.finishStroke();
       } else if (!leftWasDown && this.leftFoot.down) {
-        if (this.leftFoot.position !== 0) this.momentum = 20;
+        if (this.leftFoot.position !== 0) {
+          this.momentum = 20;
+          this.stumbled = true;
+        }
         this.leftFoot.startStroke();
         this.rightFoot.reposition();
       }
       if (rightWasDown && !this.rightFoot.down) {
         this.momentum = this.momentum + this.rightFoot.finishStroke();
       } else if (!rightWasDown && this.rightFoot.down) {
-        if (this.rightFoot.position !== 0) this.momentum = 20;
+        if (this.rightFoot.position !== 0) {
+          this.momentum = 20;
+          this.stumbled = true;
+        }
         this.rightFoot.startStroke();
         this.leftFoot.reposition();
       }
