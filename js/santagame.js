@@ -378,15 +378,19 @@
       this.edge = this.width;
       this.slope = 1.5;
       this.end = 100000;
+      this.lastItem = 0;
     }
 
     Course.prototype.update = function(x) {
       if (x + this.width > this.edge) {
         this.edge = x + this.width;
+        if (this.lastItem > this.edge - 100) return;
         if (Math.random() < 0.005) {
-          return this.items[this.edge] = new Tree(70, 10, 20);
+          this.items[this.edge] = new Tree(70, 10, 20);
+          return this.lastItem = this.edge;
         } else if (Math.random() < 0.005) {
-          return this.items[this.edge] = new RoughPatch(0, 5, 20, true);
+          this.items[this.edge] = new RoughPatch(0, 5, 20, true);
+          return this.lastItem = this.edge;
         }
       }
     };

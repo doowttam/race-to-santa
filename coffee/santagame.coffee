@@ -330,18 +330,24 @@ class Foot
 
 class Course
   constructor: (@width) ->
-    @items = {}
-    @edge  = @width
-    @slope = 1.5
-    @end   = 100000
+    @items    = {}
+    @edge     = @width
+    @slope    = 1.5
+    @end      = 100000
+    @lastItem = 0
 
   update: (x) ->
     if x + @width > @edge
       @edge = x + @width
+
+      return if @lastItem > @edge - 100
+
       if Math.random() < 0.005
         @items[@edge] = new Tree 70, 10, 20
+        @lastItem     = @edge
       else if Math.random() < 0.005
         @items[@edge] = new RoughPatch 0, 5, 20, true
+        @lastItem     = @edge
 
   checkCollision: (x, speed) ->
     for collisionX in [x..x + speed]
