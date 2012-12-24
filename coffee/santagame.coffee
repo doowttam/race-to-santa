@@ -31,13 +31,37 @@ class window.SantaGame
     @drawOpener()
 
   drawOpener: ->
-    @context.fillStyle = 'rgba(0,0,0,.7)'
-    @context.fillRect 0, 0, @canvas.width, @canvas.height
-
-    @context.fillStyle = 'white'
+    @context.fillStyle = 'red'
     @context.font = 'bold 48px sans-serif'
     @context.textAlign = 'center'
-    @context.fillText 'Race to Santa', @canvas.width / 2, 200
+    @context.fillText 'Race to Santa', @canvas.width / 2, 80
+
+    @context.fillStyle = 'white'
+    @context.font = 'bold 24px sans-serif'
+    @context.textAlign = 'center'
+
+    @context.fillStyle = 'blue'
+    @context.fillText 'Player 1', @canvas.width / 4, 130
+
+    @context.fillStyle = 'orange'
+    @context.fillText 'Player 2', (@canvas.width / 4) * 3, 130
+
+    @context.fillStyle = 'white'
+    @context.font = 'bold 20px sans-serif'
+    @context.textAlign = 'center'
+    @context.fillText 'Feet - Left/Right Arrows', @canvas.width / 4, 170
+    @context.fillText 'Jump - Down Arrow', @canvas.width / 4, 210
+    @context.fillText 'Feet - A/D', (@canvas.width / 4) * 3, 170
+    @context.fillText 'Jump - S', (@canvas.width / 4) * 3, 210
+
+    @player1.body.draw @context, @canvas.width / 4, 300, 1.5, @player1.lane
+    @player2.body.draw @context, (@canvas.width / 4) * 3, 280, 1.5, @player2.lane
+
+    @context.fillStyle = 'white'
+    @context.font = 'bold 18px sans-serif'
+    @context.fillText 'Ice skate to Santa! Use long smooth movements for the most speed.', @canvas.width / 2, 330
+    @context.fillText 'Jump over speed bumps and always push with your forward foot!', @canvas.width / 2, 355
+
 
   # Could be refactored into general messaging, if we had more messages
   addStumbleMessage: (lane) ->

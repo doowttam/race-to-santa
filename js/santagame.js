@@ -41,12 +41,30 @@
     }
 
     SantaGame.prototype.drawOpener = function() {
-      this.context.fillStyle = 'rgba(0,0,0,.7)';
-      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      this.context.fillStyle = 'white';
+      this.context.fillStyle = 'red';
       this.context.font = 'bold 48px sans-serif';
       this.context.textAlign = 'center';
-      return this.context.fillText('Race to Santa', this.canvas.width / 2, 200);
+      this.context.fillText('Race to Santa', this.canvas.width / 2, 80);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 24px sans-serif';
+      this.context.textAlign = 'center';
+      this.context.fillStyle = 'blue';
+      this.context.fillText('Player 1', this.canvas.width / 4, 130);
+      this.context.fillStyle = 'orange';
+      this.context.fillText('Player 2', (this.canvas.width / 4) * 3, 130);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 20px sans-serif';
+      this.context.textAlign = 'center';
+      this.context.fillText('Feet - Left/Right Arrows', this.canvas.width / 4, 170);
+      this.context.fillText('Jump - Down Arrow', this.canvas.width / 4, 210);
+      this.context.fillText('Feet - A/D', (this.canvas.width / 4) * 3, 170);
+      this.context.fillText('Jump - S', (this.canvas.width / 4) * 3, 210);
+      this.player1.body.draw(this.context, this.canvas.width / 4, 300, 1.5, this.player1.lane);
+      this.player2.body.draw(this.context, (this.canvas.width / 4) * 3, 280, 1.5, this.player2.lane);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 18px sans-serif';
+      this.context.fillText('Ice skate to Santa! Use long smooth movements for the most speed.', this.canvas.width / 2, 330);
+      return this.context.fillText('Jump over speed bumps and always push with your forward foot!', this.canvas.width / 2, 355);
     };
 
     SantaGame.prototype.addStumbleMessage = function(lane) {
