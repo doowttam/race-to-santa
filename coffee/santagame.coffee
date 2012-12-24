@@ -258,11 +258,11 @@ class Course
       if Math.random() < 0.005
         @items[@edge] = new Tree 70, 10, 20
       else if Math.random() < 0.005
-        @items[@edge] = new RoughPatch 0, 35, 30
+        @items[@edge] = new RoughPatch 0, 5, 20, true
 
   checkCollision: (x, speed) ->
     for collisionX in [x..x + speed]
-      return collisionX - x if @items[collisionX]
+      return collisionX - x if @items[collisionX] and @items[collisionX].canCollide
     return 0
 
   draw: (context, canvas, top, bottom, xOffset, otherPlayer, padding) ->
@@ -289,13 +289,13 @@ class Course
       context.stroke()
 
     for drawX in [(xOffset - 100)..xOffset + @width]
-      @items[drawX].draw(context, drawX - xOffset + padding, bottom - 45, @slope) if @items[drawX]
+      @items[drawX].draw(context, drawX - xOffset + padding, bottom - 20, @slope) if @items[drawX]
 
     if otherPlayer and otherPlayer.x >= xOffset - otherPlayer.padding and otherPlayer.x <= xOffset + @width
       otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 20 - otherPlayer.elevation, 1.5
 
 class Entity
-  constructor: (@height, @width, @depth) ->
+  constructor: (@height, @width, @depth, @canCollide = false) ->
 
   draw: (context, drawX, drawY, slope) ->
     x1 = drawX

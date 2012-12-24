@@ -311,7 +311,7 @@
         if (Math.random() < 0.005) {
           return this.items[this.edge] = new Tree(70, 10, 20);
         } else if (Math.random() < 0.005) {
-          return this.items[this.edge] = new RoughPatch(0, 35, 30);
+          return this.items[this.edge] = new RoughPatch(0, 5, 20, true);
         }
       }
     };
@@ -319,7 +319,9 @@
     Course.prototype.checkCollision = function(x, speed) {
       var collisionX, _ref;
       for (collisionX = x, _ref = x + speed; x <= _ref ? collisionX <= _ref : collisionX >= _ref; x <= _ref ? collisionX++ : collisionX--) {
-        if (this.items[collisionX]) return collisionX - x;
+        if (this.items[collisionX] && this.items[collisionX].canCollide) {
+          return collisionX - x;
+        }
       }
       return 0;
     };
@@ -345,7 +347,7 @@
       }
       for (drawX = _ref2 = xOffset - 100, _ref3 = xOffset + this.width; _ref2 <= _ref3 ? drawX <= _ref3 : drawX >= _ref3; _ref2 <= _ref3 ? drawX++ : drawX--) {
         if (this.items[drawX]) {
-          this.items[drawX].draw(context, drawX - xOffset + padding, bottom - 45, this.slope);
+          this.items[drawX].draw(context, drawX - xOffset + padding, bottom - 20, this.slope);
         }
       }
       if (otherPlayer && otherPlayer.x >= xOffset - otherPlayer.padding && otherPlayer.x <= xOffset + this.width) {
@@ -359,10 +361,11 @@
 
   Entity = (function() {
 
-    function Entity(height, width, depth) {
+    function Entity(height, width, depth, canCollide) {
       this.height = height;
       this.width = width;
       this.depth = depth;
+      this.canCollide = canCollide != null ? canCollide : false;
     }
 
     Entity.prototype.draw = function(context, drawX, drawY, slope) {
