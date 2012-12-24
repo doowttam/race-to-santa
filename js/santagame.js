@@ -43,14 +43,31 @@
       this.frame++;
       this.update();
       this.resetCanvas();
+      this.player1.draw(this.context, this.canvas);
+      this.player2.draw(this.context, this.canvas);
+      this.drawHud();
+      if (this.running) return requestAnimationFrame(this.drawFrame);
+    };
+
+    SantaGame.prototype.drawHud = function() {
+      var player1Pos, player2Pos;
       this.context.beginPath();
       this.context.moveTo(0, 200);
       this.context.lineTo(this.canvas.width, 200);
       this.context.closePath();
       this.context.stroke();
-      this.player1.draw(this.context, this.canvas);
-      this.player2.draw(this.context, this.canvas);
-      if (this.running) return requestAnimationFrame(this.drawFrame);
+      player1Pos = this.player1.x / (this.course.end / this.canvas.width - 60);
+      player2Pos = this.player2.x / (this.course.end / this.canvas.width - 60);
+      this.context.fillStyle = 'blue';
+      this.context.fillRect(player1Pos, 190, 10, 10);
+      this.context.fillStyle = 'orange';
+      this.context.fillRect(player2Pos, 200, 10, 10);
+      this.context.fillStyle = 'red';
+      this.context.fillRect(this.canvas.width - 50, 190, 50, 20);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 12px sans-serif';
+      this.context.textAlign = 'left';
+      return this.context.fillText('SANTA', this.canvas.width - 46, 205);
     };
 
     SantaGame.prototype.play = function() {
@@ -303,6 +320,7 @@
       this.items = {};
       this.edge = this.width;
       this.slope = 1.5;
+      this.end = 100000;
     }
 
     Course.prototype.update = function(x) {

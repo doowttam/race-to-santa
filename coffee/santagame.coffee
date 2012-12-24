@@ -35,6 +35,15 @@ class window.SantaGame
     # Wipe canvas so we can draw on it
     @resetCanvas()
 
+    @player1.draw @context, @canvas
+    @player2.draw @context, @canvas
+
+    @drawHud()
+
+    # Continue running if we should
+    requestAnimationFrame @drawFrame if @running
+
+  drawHud: ->
     @context.beginPath()
     @context.moveTo 0, 200
     @context.lineTo @canvas.width, 200
@@ -42,11 +51,22 @@ class window.SantaGame
 
     @context.stroke()
 
-    @player1.draw @context, @canvas
-    @player2.draw @context, @canvas
+    player1Pos = @player1.x / (@course.end / @canvas.width - 60)
+    player2Pos = @player2.x / (@course.end / @canvas.width - 60)
 
-    # Continue running if we should
-    requestAnimationFrame @drawFrame if @running
+    @context.fillStyle = 'blue'
+    @context.fillRect player1Pos, 190, 10, 10
+
+    @context.fillStyle = 'orange'
+    @context.fillRect player2Pos, 200, 10, 10
+
+    @context.fillStyle = 'red'
+    @context.fillRect @canvas.width - 50, 190, 50, 20
+
+    @context.fillStyle = 'white'
+    @context.font = 'bold 12px sans-serif'
+    @context.textAlign = 'left'
+    @context.fillText 'SANTA', @canvas.width - 46, 205
 
   play: =>
     return if @running
@@ -248,9 +268,10 @@ class Foot
 
 class Course
   constructor: (@width) ->
-    @items      = {}
-    @edge       = @width
-    @slope      = 1.5
+    @items = {}
+    @edge  = @width
+    @slope = 1.5
+    @end   = 100000
 
   update: (x) ->
     if x + @width > @edge
