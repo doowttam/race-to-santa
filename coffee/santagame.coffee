@@ -111,7 +111,7 @@ class window.SantaGame
 
     countdown(3)
 
-  drawPause: =>
+  drawPause: ->
     @context.fillStyle = 'rgba(0,0,0,.7)'
     @context.fillRect 0, 0, @canvas.width, @canvas.height
 
@@ -124,7 +124,7 @@ class window.SantaGame
     @running = !@running
     requestAnimationFrame @drawFrame if @running
 
-  winGame: (player) =>
+  winGame: (player) ->
     @running = false
 
     @context.fillStyle = 'rgba(0,0,0,.7)'

@@ -10,9 +10,7 @@
       var _this = this;
       this.doc = doc;
       this.win = win;
-      this.winGame = __bind(this.winGame, this);
       this.pause = __bind(this.pause, this);
-      this.drawPause = __bind(this.drawPause, this);
       this.play = __bind(this.play, this);
       this.drawFrame = __bind(this.drawFrame, this);
       this.canvas = this.doc.getElementById('game_canvas');
