@@ -40,6 +40,8 @@ class window.SantaGame
 
     @drawHud()
 
+    @checkWin()
+
     # Continue running if we should
     requestAnimationFrame @drawFrame if @running
 
@@ -51,8 +53,8 @@ class window.SantaGame
 
     @context.stroke()
 
-    player1Pos = @player1.x / (@course.end / @canvas.width - 60)
-    player2Pos = @player2.x / (@course.end / @canvas.width - 60)
+    player1Pos = @player1.x / (@course.end / (@canvas.width - 60))
+    player2Pos = @player2.x / (@course.end / (@canvas.width - 60))
 
     @context.fillStyle = 'blue'
     @context.fillRect player1Pos, 190, 10, 10
@@ -78,9 +80,28 @@ class window.SantaGame
     @running = !@running
     requestAnimationFrame @drawFrame if @running
 
+  winGame: (player) =>
+    @running = false
+
+    @context.fillStyle = 'rgba(0,0,0,.7)'
+    @context.fillRect 0, 0, @canvas.width, @canvas.height
+
+    @context.fillStyle = 'white'
+    @context.font = 'bold 48px sans-serif'
+    @context.textAlign = 'center'
+    @context.fillText player + " wins!", @canvas.width / 2, 125
+
   update: ->
     @player1.update()
     @player2.update()
+
+  checkWin: ->
+    # No ties, sorry
+    if @course.checkWin @player1.x
+      @winGame 'Player 1'
+
+    if @course.checkWin @player2.x
+      @winGame 'Player 2'
 
 # Inspired by http://nokarma.org/2011/02/27/javascript-game-development-keyboard-input/index.html
 class Key
@@ -282,6 +303,8 @@ class Course
     for collisionX in [x..x + speed]
       return collisionX - x if @items[collisionX] and @items[collisionX].canCollide
     return 0
+
+  checkWin: (x) -> x > @end
 
   draw: (context, canvas, top, bottom, xOffset, otherPlayer, padding) ->
     horizon = bottom - 50

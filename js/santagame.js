@@ -10,6 +10,7 @@
       var _this = this;
       this.doc = doc;
       this.win = win;
+      this.winGame = __bind(this.winGame, this);
       this.pause = __bind(this.pause, this);
       this.play = __bind(this.play, this);
       this.drawFrame = __bind(this.drawFrame, this);
@@ -46,6 +47,7 @@
       this.player1.draw(this.context, this.canvas);
       this.player2.draw(this.context, this.canvas);
       this.drawHud();
+      this.checkWin();
       if (this.running) return requestAnimationFrame(this.drawFrame);
     };
 
@@ -56,8 +58,8 @@
       this.context.lineTo(this.canvas.width, 200);
       this.context.closePath();
       this.context.stroke();
-      player1Pos = this.player1.x / (this.course.end / this.canvas.width - 60);
-      player2Pos = this.player2.x / (this.course.end / this.canvas.width - 60);
+      player1Pos = this.player1.x / (this.course.end / (this.canvas.width - 60));
+      player2Pos = this.player2.x / (this.course.end / (this.canvas.width - 60));
       this.context.fillStyle = 'blue';
       this.context.fillRect(player1Pos, 190, 10, 10);
       this.context.fillStyle = 'orange';
@@ -81,9 +83,24 @@
       if (this.running) return requestAnimationFrame(this.drawFrame);
     };
 
+    SantaGame.prototype.winGame = function(player) {
+      this.running = false;
+      this.context.fillStyle = 'rgba(0,0,0,.7)';
+      this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 48px sans-serif';
+      this.context.textAlign = 'center';
+      return this.context.fillText(player + " wins!", this.canvas.width / 2, 125);
+    };
+
     SantaGame.prototype.update = function() {
       this.player1.update();
       return this.player2.update();
+    };
+
+    SantaGame.prototype.checkWin = function() {
+      if (this.course.checkWin(this.player1.x)) this.winGame('Player 1');
+      if (this.course.checkWin(this.player2.x)) return this.winGame('Player 2');
     };
 
     return SantaGame;
@@ -340,6 +357,10 @@
         }
       }
       return 0;
+    };
+
+    Course.prototype.checkWin = function(x) {
+      return x > this.end;
     };
 
     Course.prototype.draw = function(context, canvas, top, bottom, xOffset, otherPlayer, padding) {
