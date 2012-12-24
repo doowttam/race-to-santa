@@ -124,6 +124,7 @@
       this.rightFoot = new Foot(this.rightKey);
       this.x = 0;
       this.body = new PlayerBody(40, 5, 20);
+      this.padding = 50;
     }
 
     Player.prototype.watchPlayer = function(otherPlayer) {
@@ -161,7 +162,7 @@
       this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
-      this.body.draw(context, 20, this.bottom - 60, 1.5);
+      this.body.draw(context, this.padding, this.bottom - 60, 1.5);
       context.fillStyle = 'purple';
       return context.fillRect(0, this.top + 30, this.momentum, 10);
     };
@@ -267,7 +268,6 @@
       this.items = {};
       this.edge = this.width;
       this.slope = 1.5;
-      this.yIntercept = 900;
     }
 
     Course.prototype.update = function(x) {
@@ -280,7 +280,7 @@
     };
 
     Course.prototype.draw = function(context, canvas, top, bottom, xOffset, otherPlayer) {
-      var drawX, horizon, start, _ref, _ref2;
+      var drawX, horizon, start, _ref, _ref2, _ref3;
       horizon = bottom - 50;
       context.strokeStyle = 'black';
       context.beginPath();
@@ -298,13 +298,13 @@
         context.closePath();
         context.stroke();
       }
-      for (drawX = xOffset, _ref2 = xOffset + this.width; xOffset <= _ref2 ? drawX <= _ref2 : drawX >= _ref2; xOffset <= _ref2 ? drawX++ : drawX--) {
+      for (drawX = _ref2 = xOffset - 50, _ref3 = xOffset + this.width; _ref2 <= _ref3 ? drawX <= _ref3 : drawX >= _ref3; _ref2 <= _ref3 ? drawX++ : drawX--) {
         if (this.items[drawX]) {
           this.items[drawX].draw(context, drawX - xOffset, bottom - 110, this.slope);
         }
       }
-      if (otherPlayer && otherPlayer.x >= xOffset && otherPlayer.x <= xOffset + this.width) {
-        return otherPlayer.body.draw(context, otherPlayer.x - xOffset, bottom - 60, 1.5);
+      if (otherPlayer && otherPlayer.x >= xOffset - otherPlayer.padding && otherPlayer.x <= xOffset + this.width) {
+        return otherPlayer.body.draw(context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60, 1.5);
       }
     };
 
@@ -369,6 +369,10 @@
     function PlayerBody() {
       PlayerBody.__super__.constructor.apply(this, arguments);
     }
+
+    PlayerBody.prototype.draw = function(context, drawX, drawY, slope) {
+      return PlayerBody.__super__.draw.call(this, context, drawX - this.depth, drawY, slope);
+    };
 
     return PlayerBody;
 

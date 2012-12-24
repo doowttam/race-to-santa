@@ -90,6 +90,7 @@ class Player
     @rightFoot = new Foot @rightKey
     @x         = 0
     @body      = new PlayerBody 40, 5, 20
+    @padding   = 50
 
   watchPlayer: (@otherPlayer) ->
 
@@ -132,7 +133,7 @@ class Player
     @course.draw context, canvas, @top, @bottom, @x, @otherPlayer
     @leftFoot.draw context, canvas.width - 200, @top + 75
     @rightFoot.draw context, canvas.width - 100, @top + 75
-    @body.draw context, 20, @bottom - 60, 1.5
+    @body.draw context, @padding, @bottom - 60, 1.5
 
     context.fillStyle = 'purple'
     context.fillRect 0, @top + 30, @momentum, 10
@@ -219,7 +220,6 @@ class Course
     @items      = {}
     @edge       = @width
     @slope      = 1.5
-    @yIntercept = 900
 
   update: (x) ->
     if x + @width > @edge
@@ -250,12 +250,11 @@ class Course
 
       context.stroke()
 
-    for drawX in [xOffset..xOffset + @width]
+    for drawX in [(xOffset - 50)..xOffset + @width]
       @items[drawX].draw(context, drawX - xOffset, bottom - 110, @slope) if @items[drawX]
 
-
-    if otherPlayer and otherPlayer.x >= xOffset and otherPlayer.x <= xOffset + @width
-      otherPlayer.body.draw context, otherPlayer.x - xOffset, bottom - 60, 1.5
+    if otherPlayer and otherPlayer.x >= xOffset - otherPlayer.padding and otherPlayer.x <= xOffset + @width
+      otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 60, 1.5
 
 class Entity
   constructor: (@height, @width, @depth) ->
@@ -294,3 +293,4 @@ class Entity
 class Tree extends Entity
 
 class PlayerBody extends Entity
+  draw: (context, drawX, drawY, slope) -> super context, drawX - @depth, drawY, slope
