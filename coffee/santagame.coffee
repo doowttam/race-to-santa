@@ -17,8 +17,8 @@ class window.SantaGame
 
     @course  = new Course @canvas.width
 
-    @player1 = new Player 'LEFT', 'RIGHT', 'DOWN', 0, 200, @canvas, @key, 100, @course
-    @player2 = new Player 'A', 'D', 'S', 200, @canvas.height, @canvas, @key, 100, @course
+    @player1 = new Player 'LEFT', 'RIGHT', 'DOWN', 0, 200, @canvas, @key, 100, @course, 1
+    @player2 = new Player 'A', 'D', 'S', 200, @canvas.height, @canvas, @key, 100, @course, 0
 
     @player1.watchPlayer @player2
     @player2.watchPlayer @player1
@@ -171,12 +171,12 @@ class Key
     delete @pressed[event.keyCode]
 
 class Player
-  constructor: (@leftKey, @rightKey, @jumpKey, @top, @bottom, @canvas, @key, @momentum, @course) ->
+  constructor: (@leftKey, @rightKey, @jumpKey, @top, @bottom, @canvas, @key, @momentum, @course, @lane) ->
     @leftFoot   = new Foot @leftKey
     @rightFoot  = new Foot @rightKey
     @x          = 0
     @body       = new PlayerBody 40, 5, 20
-    @padding    = 50
+    @padding    = 100
     @jumping    = false
     @elevation  = 0
     @jumpHeight = 50
@@ -241,10 +241,16 @@ class Player
     @course.update @x
 
   draw: (context, canvas) ->
-    @course.draw context, canvas, @top, @bottom, @x, @otherPlayer, @padding
+    drawOtherPlayer = @course.draw context, canvas, @top, @bottom, @x, @otherPlayer, @padding
     @leftFoot.draw context, canvas.width - 200, @top + 75
     @rightFoot.draw context, canvas.width - 100, @top + 75
-    @body.draw context, @padding, @bottom - 20 - @elevation, 1.5
+
+    if @lane == 1
+      @body.draw context, @padding, @bottom - 20 - @elevation, 1.5, @lane
+      drawOtherPlayer()
+    else
+      drawOtherPlayer()
+      @body.draw context, @padding, @bottom - 20 - @elevation, 1.5, @lane
 
 class Foot
   constructor: (@foot, @position = 0) ->
@@ -357,7 +363,7 @@ class Course
   checkWin: (x) -> x > @end
 
   draw: (context, canvas, top, bottom, xOffset, otherPlayer, padding) ->
-    horizon = bottom - 50
+    horizon = bottom - 70
 
     context.strokeStyle = 'black'
 
@@ -382,8 +388,14 @@ class Course
     for drawX in [(xOffset - 100)..xOffset + @width]
       @items[drawX].draw(context, drawX - xOffset + padding, bottom - 20, @slope) if @items[drawX]
 
+    # Return a callback to draw the other player (or an empty callback) so that we can layer
+    # player bodies appropriately
     if otherPlayer and otherPlayer.x >= xOffset - otherPlayer.padding and otherPlayer.x <= xOffset + @width
-      otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 20 - otherPlayer.elevation, 1.5
+      otherDrawX = otherPlayer.x - xOffset + otherPlayer.padding
+      otherDrawY = bottom - 20 - otherPlayer.elevation
+
+      return -> otherPlayer.body.draw context, otherDrawX, otherDrawY, 1.5, otherPlayer.lane
+    return -> # Empty callback, player isn't in view
 
 class Entity
   constructor: (@height, @width, @depth, @canCollide = false) ->
@@ -420,7 +432,7 @@ class Entity
 
 class Tree extends Entity
   draw: (context, drawX, drawY, slope) ->
-    shiftBack = 30
+    shiftBack = 40
     yShift = shiftBack
     xShift = shiftBack * slope
 
@@ -469,7 +481,14 @@ class Tree extends Entity
 
 class PlayerBody extends Entity
   # Draw the player with x being their front, rather than back
-  draw: (context, drawX, drawY, slope) ->
+  draw: (context, drawX, drawY, slope, lane) ->
+    shiftBack = lane * 20
+    yShift = shiftBack
+    xShift = shiftBack * slope
+
+    drawX = drawX - xShift
+    drawY = drawY - yShift
+
     context.strokeStyle = 'black'
     super context, drawX - @depth, drawY, slope
 

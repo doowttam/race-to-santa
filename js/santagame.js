@@ -29,8 +29,8 @@
         return _this.key.onKeyDown(e);
       };
       this.course = new Course(this.canvas.width);
-      this.player1 = new Player('LEFT', 'RIGHT', 'DOWN', 0, 200, this.canvas, this.key, 100, this.course);
-      this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.canvas, this.key, 100, this.course);
+      this.player1 = new Player('LEFT', 'RIGHT', 'DOWN', 0, 200, this.canvas, this.key, 100, this.course, 1);
+      this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.canvas, this.key, 100, this.course, 0);
       this.player1.watchPlayer(this.player2);
       this.player2.watchPlayer(this.player1);
       this.drawOpener();
@@ -188,7 +188,7 @@
 
   Player = (function() {
 
-    function Player(leftKey, rightKey, jumpKey, top, bottom, canvas, key, momentum, course) {
+    function Player(leftKey, rightKey, jumpKey, top, bottom, canvas, key, momentum, course, lane) {
       this.leftKey = leftKey;
       this.rightKey = rightKey;
       this.jumpKey = jumpKey;
@@ -198,11 +198,12 @@
       this.key = key;
       this.momentum = momentum;
       this.course = course;
+      this.lane = lane;
       this.leftFoot = new Foot(this.leftKey);
       this.rightFoot = new Foot(this.rightKey);
       this.x = 0;
       this.body = new PlayerBody(40, 5, 20);
-      this.padding = 50;
+      this.padding = 100;
       this.jumping = false;
       this.elevation = 0;
       this.jumpHeight = 50;
@@ -263,10 +264,17 @@
     };
 
     Player.prototype.draw = function(context, canvas) {
-      this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer, this.padding);
+      var drawOtherPlayer;
+      drawOtherPlayer = this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer, this.padding);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
-      return this.body.draw(context, this.padding, this.bottom - 20 - this.elevation, 1.5);
+      if (this.lane === 1) {
+        this.body.draw(context, this.padding, this.bottom - 20 - this.elevation, 1.5, this.lane);
+        return drawOtherPlayer();
+      } else {
+        drawOtherPlayer();
+        return this.body.draw(context, this.padding, this.bottom - 20 - this.elevation, 1.5, this.lane);
+      }
     };
 
     return Player;
@@ -410,8 +418,8 @@
     };
 
     Course.prototype.draw = function(context, canvas, top, bottom, xOffset, otherPlayer, padding) {
-      var drawX, horizon, start, _ref, _ref2, _ref3;
-      horizon = bottom - 50;
+      var drawX, horizon, otherDrawX, otherDrawY, start, _ref, _ref2, _ref3;
+      horizon = bottom - 70;
       context.strokeStyle = 'black';
       context.beginPath();
       context.moveTo(0, horizon);
@@ -434,8 +442,13 @@
         }
       }
       if (otherPlayer && otherPlayer.x >= xOffset - otherPlayer.padding && otherPlayer.x <= xOffset + this.width) {
-        return otherPlayer.body.draw(context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 20 - otherPlayer.elevation, 1.5);
+        otherDrawX = otherPlayer.x - xOffset + otherPlayer.padding;
+        otherDrawY = bottom - 20 - otherPlayer.elevation;
+        return function() {
+          return otherPlayer.body.draw(context, otherDrawX, otherDrawY, 1.5, otherPlayer.lane);
+        };
       }
+      return function() {};
     };
 
     return Course;
@@ -491,7 +504,7 @@
 
     Tree.prototype.draw = function(context, drawX, drawY, slope) {
       var depth, shiftBack, width, x1, x2, xShift, y1, y2, yShift;
-      shiftBack = 30;
+      shiftBack = 40;
       yShift = shiftBack;
       xShift = shiftBack * slope;
       drawX = drawX - xShift;
@@ -538,7 +551,13 @@
       PlayerBody.__super__.constructor.apply(this, arguments);
     }
 
-    PlayerBody.prototype.draw = function(context, drawX, drawY, slope) {
+    PlayerBody.prototype.draw = function(context, drawX, drawY, slope, lane) {
+      var shiftBack, xShift, yShift;
+      shiftBack = lane * 20;
+      yShift = shiftBack;
+      xShift = shiftBack * slope;
+      drawX = drawX - xShift;
+      drawY = drawY - yShift;
       context.strokeStyle = 'black';
       return PlayerBody.__super__.draw.call(this, context, drawX - this.depth, drawY, slope);
     };
