@@ -376,8 +376,8 @@ class Course
 
     context.stroke()
 
-    start = xOffset % 100
-    for drawX in [0..canvas.width + 100] by 100
+    start = xOffset % 150
+    for drawX in [0..canvas.width + 150] by 150
       context.beginPath()
       context.moveTo drawX - start, top
       context.lineTo drawX - start, horizon

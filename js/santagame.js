@@ -427,8 +427,8 @@
       context.lineTo(canvas.width, horizon);
       context.closePath();
       context.stroke();
-      start = xOffset % 100;
-      for (drawX = 0, _ref = canvas.width + 100; drawX <= _ref; drawX += 100) {
+      start = xOffset % 150;
+      for (drawX = 0, _ref = canvas.width + 150; drawX <= _ref; drawX += 150) {
         context.beginPath();
         context.moveTo(drawX - start, top);
         context.lineTo(drawX - start, horizon);
