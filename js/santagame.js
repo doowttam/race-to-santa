@@ -302,7 +302,7 @@
       if (!(this.elevation > 0)) {
         collideAt = this.course.checkCollision(this.x, speed);
         if (collideAt > 0) {
-          this.momentum = 0;
+          this.momentum = this.momentum / 3;
           speed = collideAt;
         }
       }

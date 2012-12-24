@@ -281,7 +281,7 @@ class Player
       collideAt = @course.checkCollision @x, speed
 
       if collideAt > 0
-        @momentum = 0
+        @momentum = @momentum / 3
         speed = collideAt
 
     @x = @x + speed
