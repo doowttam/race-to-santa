@@ -519,101 +519,15 @@
       return [drawX, drawY];
     };
 
-    Entity.prototype.draw = function(context, drawX, drawY, slope) {
+    Entity.prototype.draw = function(context, drawX, drawY, slope, slant) {
       var x1, x2, y1, y2;
+      if (slant == null) slant = 0;
       x1 = drawX;
       y1 = drawY;
       x2 = drawX + this.width * slope;
       y2 = drawY + this.width;
       context.fillStyle = 'white';
       context.beginPath();
-      context.moveTo(x1, y1 - this.height);
-      context.lineTo(x2, y2 - this.height);
-      context.lineTo(x2, y2);
-      context.lineTo(x1, y1);
-      context.lineTo(x1, y1 - this.height);
-      context.moveTo(x1, y1 - this.height);
-      context.lineTo(x1 + this.depth, y1 - this.height);
-      context.lineTo(x2 + this.depth, y2 - this.height);
-      context.lineTo(x2 + this.depth, y2);
-      context.lineTo(x2, y2);
-      context.moveTo(x2, y2 - this.height);
-      context.lineTo(x2 + this.depth, y2 - this.height);
-      context.moveTo(x1, y1 - this.height);
-      context.closePath();
-      context.fill();
-      return context.stroke();
-    };
-
-    return Entity;
-
-  })();
-
-  Tree = (function(_super) {
-
-    __extends(Tree, _super);
-
-    function Tree() {
-      Tree.__super__.constructor.apply(this, arguments);
-    }
-
-    Tree.prototype.draw = function(context, drawX, drawY, slope) {
-      var depth, width, x1, x2, y1, y2, _ref;
-      _ref = this.shift(40, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
-      context.strokeStyle = 'saddlebrown';
-      Tree.__super__.draw.call(this, context, drawX, drawY, slope);
-      drawX = drawX - 25;
-      depth = 60;
-      width = 15;
-      x1 = drawX;
-      y1 = drawY - this.height;
-      x2 = drawX + width * slope;
-      y2 = drawY + width - this.height;
-      context.strokeStyle = 'green';
-      context.fillStyle = 'white';
-      context.beginPath();
-      context.moveTo(x1, y1 - this.height);
-      context.lineTo(x2, y2 - this.height);
-      context.lineTo(x2, y2);
-      context.lineTo(x1, y1);
-      context.lineTo(x1, y1 - this.height);
-      context.moveTo(x1, y1 - this.height);
-      context.lineTo(x1 + depth, y1 - this.height);
-      context.lineTo(x2 + depth, y2 - this.height);
-      context.lineTo(x2 + depth, y2);
-      context.lineTo(x2, y2);
-      context.moveTo(x2, y2 - this.height);
-      context.lineTo(x2 + depth, y2 - this.height);
-      context.moveTo(x1, y1 - this.height);
-      context.closePath();
-      context.fill();
-      return context.stroke();
-    };
-
-    return Tree;
-
-  })(Entity);
-
-  PlayerBody = (function(_super) {
-
-    __extends(PlayerBody, _super);
-
-    function PlayerBody() {
-      PlayerBody.__super__.constructor.apply(this, arguments);
-    }
-
-    PlayerBody.prototype.draw = function(context, drawX, drawY, slope, lane) {
-      var slant, x1, x2, y1, y2, _ref;
-      context.strokeStyle = lane === 1 ? 'blue' : 'orange';
-      _ref = this.shift(lane * 20, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
-      drawX = drawX - this.depth;
-      x1 = drawX;
-      y1 = drawY;
-      x2 = drawX + this.width * slope;
-      y2 = drawY + this.width;
-      context.fillStyle = 'white';
-      context.beginPath();
-      slant = 20;
       context.moveTo(x1 + slant, y1 - this.height);
       context.lineTo(x2 + slant, y2 - this.height);
       context.lineTo(x2, y2);
@@ -630,6 +544,53 @@
       context.closePath();
       context.fill();
       return context.stroke();
+    };
+
+    return Entity;
+
+  })();
+
+  Tree = (function(_super) {
+
+    __extends(Tree, _super);
+
+    function Tree(height, width, depth, canCollide) {
+      this.height = height;
+      this.width = width;
+      this.depth = depth;
+      this.canCollide = canCollide != null ? canCollide : false;
+      Tree.__super__.constructor.call(this, this.height, this.width, this.depth, this.canCollide);
+      this.leaves = new Entity(this.height, 15, 60);
+    }
+
+    Tree.prototype.draw = function(context, drawX, drawY, slope) {
+      var _ref;
+      context.strokeStyle = 'saddlebrown';
+      _ref = this.shift(40, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
+      Tree.__super__.draw.call(this, context, drawX, drawY, slope);
+      context.strokeStyle = 'green';
+      context.fillStyle = 'white';
+      return this.leaves.draw(context, drawX - 25, drawY - this.height, slope);
+    };
+
+    return Tree;
+
+  })(Entity);
+
+  PlayerBody = (function(_super) {
+
+    __extends(PlayerBody, _super);
+
+    function PlayerBody() {
+      PlayerBody.__super__.constructor.apply(this, arguments);
+    }
+
+    PlayerBody.prototype.draw = function(context, drawX, drawY, slope, lane) {
+      var _ref;
+      context.strokeStyle = lane === 1 ? 'blue' : 'orange';
+      _ref = this.shift(lane * 20, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
+      drawX = drawX - this.depth;
+      return PlayerBody.__super__.draw.call(this, context, drawX, drawY, slope, 25);
     };
 
     return PlayerBody;

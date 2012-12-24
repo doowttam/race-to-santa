@@ -455,7 +455,7 @@ class Entity
 
     [drawX, drawY]
 
-  draw: (context, drawX, drawY, slope) ->
+  draw: (context, drawX, drawY, slope, slant = 0) ->
     x1 = drawX
     y1 = drawY
     x2 = drawX + @width * slope
@@ -464,90 +464,6 @@ class Entity
     context.fillStyle = 'white'
 
     context.beginPath()
-
-    context.moveTo x1, y1 - @height
-    context.lineTo x2, y2 - @height
-    context.lineTo x2, y2
-    context.lineTo x1, y1
-    context.lineTo x1, y1 - @height
-
-    context.moveTo x1, y1 - @height
-    context.lineTo x1 + @depth, y1 - @height
-    context.lineTo x2 + @depth, y2 - @height
-    context.lineTo x2 + @depth, y2
-    context.lineTo x2, y2
-    context.moveTo x2, y2 - @height
-    context.lineTo x2 + @depth, y2 - @height
-    context.moveTo x1, y1 - @height
-
-    context.closePath()
-
-    context.fill()
-    context.stroke()
-
-class Tree extends Entity
-  draw: (context, drawX, drawY, slope) ->
-    [drawX, drawY] = @shift 40, drawX, drawY, slope
-
-    context.strokeStyle = 'saddlebrown'
-
-    super context, drawX, drawY, slope
-
-    # Draw leaves
-    drawX = drawX - 25
-
-    depth = 60
-    width = 15
-
-    x1 = drawX
-    y1 = drawY - @height
-    x2 = drawX + width * slope
-    y2 = drawY + width - @height
-
-    context.strokeStyle = 'green'
-    context.fillStyle = 'white'
-
-    context.beginPath()
-
-    context.moveTo x1, y1 - @height
-    context.lineTo x2, y2 - @height
-    context.lineTo x2, y2
-    context.lineTo x1, y1
-    context.lineTo x1, y1 - @height
-
-    context.moveTo x1, y1 - @height
-    context.lineTo x1 + depth, y1 - @height
-    context.lineTo x2 + depth, y2 - @height
-    context.lineTo x2 + depth, y2
-    context.lineTo x2, y2
-    context.moveTo x2, y2 - @height
-    context.lineTo x2 + depth, y2 - @height
-    context.moveTo x1, y1 - @height
-
-    context.closePath()
-
-    context.fill()
-    context.stroke()
-
-class PlayerBody extends Entity
-  # Draw the player with x being their front, rather than back
-  draw: (context, drawX, drawY, slope, lane) ->
-    context.strokeStyle = if lane == 1 then 'blue' else 'orange'
-
-    [drawX, drawY] = @shift (lane * 20), drawX, drawY, slope
-
-    drawX = drawX - @depth
-
-    x1 = drawX
-    y1 = drawY
-    x2 = drawX + @width * slope
-    y2 = drawY + @width
-
-    context.fillStyle = 'white'
-
-    context.beginPath()
-
-    slant = 20
 
     context.moveTo x1 + slant, y1 - @height
     context.lineTo x2 + slant, y2 - @height
@@ -569,6 +485,33 @@ class PlayerBody extends Entity
     context.fill()
     context.stroke()
 
+class Tree extends Entity
+  constructor: (@height, @width, @depth, @canCollide = false) ->
+    super @height, @width, @depth, @canCollide
+    @leaves = new Entity @height, 15, 60
+
+  draw: (context, drawX, drawY, slope) ->
+    context.strokeStyle = 'saddlebrown'
+
+    [drawX, drawY] = @shift 40, drawX, drawY, slope
+    super context, drawX, drawY, slope
+
+    context.strokeStyle = 'green'
+    context.fillStyle = 'white'
+
+    @leaves.draw context, drawX - 25, drawY - @height, slope
+
+class PlayerBody extends Entity
+  draw: (context, drawX, drawY, slope, lane) ->
+    context.strokeStyle = if lane == 1 then 'blue' else 'orange'
+
+    [drawX, drawY] = @shift (lane * 20), drawX, drawY, slope
+
+    # Draw the player with x being their front, rather than back
+    drawX = drawX - @depth
+
+    super context, drawX, drawY, slope, 25
+
 class RoughPatch extends Entity
   draw: (context, drawX, drawY, slope) ->
     context.strokeStyle = 'black'
@@ -579,11 +522,13 @@ class RoughPatch extends Entity
 class Santa extends Entity
   draw: (context, drawX, drawY, slope) ->
     context.strokeStyle = 'red'
+
     [drawX, drawY] = @shift 10, drawX, drawY, slope
     super context, drawX, drawY, slope
 
 class End extends Entity
   draw: (context, drawX, drawY, slope) ->
     context.strokeStyle = 'red'
+
     [drawX, drawY] = @shift 50, drawX, drawY, slope
     super context, drawX, drawY, slope
