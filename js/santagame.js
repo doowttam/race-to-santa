@@ -57,8 +57,8 @@
       this.context.textAlign = 'center';
       this.context.fillText('Feet - Left/Right Arrows', this.canvas.width / 4, 170);
       this.context.fillText('Jump - Down Arrow', this.canvas.width / 4, 210);
-      this.context.fillText('Feet - A/D', (this.canvas.width / 4) * 3, 170);
-      this.context.fillText('Jump - S', (this.canvas.width / 4) * 3, 210);
+      this.context.fillText('Feet - A/D Keys', (this.canvas.width / 4) * 3, 170);
+      this.context.fillText('Jump - S Key', (this.canvas.width / 4) * 3, 210);
       this.player1.body.draw(this.context, this.canvas.width / 4, 300, 1.5, this.player1.lane);
       this.player2.body.draw(this.context, (this.canvas.width / 4) * 3, 280, 1.5, this.player2.lane);
       this.context.fillStyle = 'white';

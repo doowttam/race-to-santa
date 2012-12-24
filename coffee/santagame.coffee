@@ -51,8 +51,8 @@ class window.SantaGame
     @context.textAlign = 'center'
     @context.fillText 'Feet - Left/Right Arrows', @canvas.width / 4, 170
     @context.fillText 'Jump - Down Arrow', @canvas.width / 4, 210
-    @context.fillText 'Feet - A/D', (@canvas.width / 4) * 3, 170
-    @context.fillText 'Jump - S', (@canvas.width / 4) * 3, 210
+    @context.fillText 'Feet - A/D Keys', (@canvas.width / 4) * 3, 170
+    @context.fillText 'Jump - S Key', (@canvas.width / 4) * 3, 210
 
     @player1.body.draw @context, @canvas.width / 4, 300, 1.5, @player1.lane
     @player2.body.draw @context, (@canvas.width / 4) * 3, 280, 1.5, @player2.lane
