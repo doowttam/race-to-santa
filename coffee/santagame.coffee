@@ -85,6 +85,7 @@ class Player
     @leftFoot  = new Foot @leftKey
     @rightFoot = new Foot @rightKey
     @x         = 0
+    @body      = new PlayerBody 40, 5, 20
 
   update: ->
     leftWasDown  = @leftFoot.down
@@ -125,6 +126,7 @@ class Player
     @course.draw context, canvas, @top, @bottom, @x
     @leftFoot.draw context, canvas.width - 200, @top + 75
     @rightFoot.draw context, canvas.width - 100, @top + 75
+    @body.draw context, 20, @bottom - 60, 1.5
 
     context.fillStyle = 'purple'
     context.fillRect 0, @top + 30, @momentum, 10
@@ -217,7 +219,7 @@ class Course
     if x + @width > @edge
       @edge = x + @width
       if Math.random() < 0.005
-        @items[@edge] = new Tree
+        @items[@edge] = new Tree 70, 10, 20
 
   draw: (context, canvas, top, bottom, x) ->
     horizon = bottom - 50
@@ -245,17 +247,16 @@ class Course
     for drawX in [x..x + @width]
       @items[drawX].draw(context, drawX - x, bottom - 110, @slope) if @items[drawX]
 
-class Tree
-  draw: (context, drawX, drawY, slope) ->
-    height = 70
-    width  = 10
-    depth  = 20
+class Entity
+  constructor: (@height, @width, @depth) ->
 
+  draw: (context, drawX, drawY, slope) ->
     x1 = drawX
     y1 = drawY
-    x2 = drawX + width * slope
-    y2 = drawY + width
+    x2 = drawX + @width * slope
+    y2 = drawY + @width
 
+    context.strokeStyle = 'black'
     context.fillStyle = 'black'
 
     context.beginPath()
@@ -263,19 +264,23 @@ class Tree
     # Trunk
     context.moveTo x1, y1
     context.lineTo x2, y2
-    context.lineTo x2, y2 + height
-    context.lineTo x1, y1 + height
+    context.lineTo x2, y2 + @height
+    context.lineTo x1, y1 + @height
     context.lineTo x1, y1
 
     context.moveTo x1, y1
-    context.lineTo x1 + depth, y1
-    context.lineTo x2 + depth, y2
-    context.lineTo x2 + depth, y2 + height
-    context.lineTo x2, y2 + height
+    context.lineTo x1 + @depth, y1
+    context.lineTo x2 + @depth, y2
+    context.lineTo x2 + @depth, y2 + @height
+    context.lineTo x2, y2 + @height
     context.moveTo x2, y2
-    context.lineTo x2 + depth, y2
+    context.lineTo x2 + @depth, y2
     context.moveTo x1, y1
 
     context.closePath()
 
     context.stroke()
+
+class Tree extends Entity
+
+class PlayerBody extends Entity

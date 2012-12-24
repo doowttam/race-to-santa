@@ -1,6 +1,8 @@
 (function() {
-  var Course, Foot, Key, Player, Tree,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var Course, Entity, Foot, Key, Player, PlayerBody, Tree,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
   window.SantaGame = (function() {
 
@@ -119,6 +121,7 @@
       this.leftFoot = new Foot(this.leftKey);
       this.rightFoot = new Foot(this.rightKey);
       this.x = 0;
+      this.body = new PlayerBody(40, 5, 20);
     }
 
     Player.prototype.update = function() {
@@ -152,6 +155,7 @@
       this.course.draw(context, canvas, this.top, this.bottom, this.x);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
+      this.body.draw(context, 20, this.bottom - 60, 1.5);
       context.fillStyle = 'purple';
       return context.fillRect(0, this.top + 30, this.momentum, 10);
     };
@@ -263,7 +267,9 @@
     Course.prototype.update = function(x) {
       if (x + this.width > this.edge) {
         this.edge = x + this.width;
-        if (Math.random() < 0.005) return this.items[this.edge] = new Tree;
+        if (Math.random() < 0.005) {
+          return this.items[this.edge] = new Tree(70, 10, 20);
+        }
       }
     };
 
@@ -301,40 +307,66 @@
 
   })();
 
-  Tree = (function() {
+  Entity = (function() {
 
-    function Tree() {}
+    function Entity(height, width, depth) {
+      this.height = height;
+      this.width = width;
+      this.depth = depth;
+    }
 
-    Tree.prototype.draw = function(context, drawX, drawY, slope) {
-      var depth, height, width, x1, x2, y1, y2;
-      height = 70;
-      width = 10;
-      depth = 20;
+    Entity.prototype.draw = function(context, drawX, drawY, slope) {
+      var x1, x2, y1, y2;
       x1 = drawX;
       y1 = drawY;
-      x2 = drawX + width * slope;
-      y2 = drawY + width;
+      x2 = drawX + this.width * slope;
+      y2 = drawY + this.width;
+      context.strokeStyle = 'black';
       context.fillStyle = 'black';
       context.beginPath();
       context.moveTo(x1, y1);
       context.lineTo(x2, y2);
-      context.lineTo(x2, y2 + height);
-      context.lineTo(x1, y1 + height);
+      context.lineTo(x2, y2 + this.height);
+      context.lineTo(x1, y1 + this.height);
       context.lineTo(x1, y1);
       context.moveTo(x1, y1);
-      context.lineTo(x1 + depth, y1);
-      context.lineTo(x2 + depth, y2);
-      context.lineTo(x2 + depth, y2 + height);
-      context.lineTo(x2, y2 + height);
+      context.lineTo(x1 + this.depth, y1);
+      context.lineTo(x2 + this.depth, y2);
+      context.lineTo(x2 + this.depth, y2 + this.height);
+      context.lineTo(x2, y2 + this.height);
       context.moveTo(x2, y2);
-      context.lineTo(x2 + depth, y2);
+      context.lineTo(x2 + this.depth, y2);
       context.moveTo(x1, y1);
       context.closePath();
       return context.stroke();
     };
 
-    return Tree;
+    return Entity;
 
   })();
+
+  Tree = (function(_super) {
+
+    __extends(Tree, _super);
+
+    function Tree() {
+      Tree.__super__.constructor.apply(this, arguments);
+    }
+
+    return Tree;
+
+  })(Entity);
+
+  PlayerBody = (function(_super) {
+
+    __extends(PlayerBody, _super);
+
+    function PlayerBody() {
+      PlayerBody.__super__.constructor.apply(this, arguments);
+    }
+
+    return PlayerBody;
+
+  })(Entity);
 
 }).call(this);
