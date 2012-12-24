@@ -247,27 +247,21 @@ class Player
       @leftFoot.update @key
       @rightFoot.update @key
 
-    if leftWasDown and !@leftFoot.down
-      @momentum = @momentum + @leftFoot.finishStroke()
-    else if !leftWasDown and @leftFoot.down
-      # Stumble!
-      if @leftFoot.position != 0
-        @momentum = 20
-        @stumbled = true
+    that = @
+    checkStroke = (foot, wasDown, otherFoot) ->
+      if wasDown and !foot.down
+        that.momentum = that.momentum + foot.finishStroke()
+      else if !wasDown and foot.down
+        # Stumble!
+        if foot.position != 0
+          that.momentum = 20
+          that.stumbled = true
 
-      @leftFoot.startStroke()
-      @rightFoot.reposition()
+        foot.startStroke()
+        otherFoot.reposition()
 
-    if rightWasDown and !@rightFoot.down
-      @momentum = @momentum + @rightFoot.finishStroke()
-    else if !rightWasDown and @rightFoot.down
-      # Stumble!
-      if @rightFoot.position != 0
-        @momentum = 20
-        @stumbled = true
-
-      @rightFoot.startStroke()
-      @leftFoot.reposition()
+    checkStroke @leftFoot, leftWasDown, @rightFoot
+    checkStroke @rightFoot, rightWasDown, @leftFoot
 
     # Normal slow down
     if @momentum > 0 then @momentum = @momentum - 0.5

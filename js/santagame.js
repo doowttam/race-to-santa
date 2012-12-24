@@ -255,7 +255,7 @@
     };
 
     Player.prototype.update = function() {
-      var collideAt, leftWasDown, rightWasDown, speed;
+      var checkStroke, collideAt, leftWasDown, rightWasDown, speed, that;
       leftWasDown = this.leftFoot.down;
       rightWasDown = this.rightFoot.down;
       if (this.key.isDown(this.key.codes[this.jumpKey]) && !this.jumping && !(this.elevation > 0)) {
@@ -276,26 +276,21 @@
         this.leftFoot.update(this.key);
         this.rightFoot.update(this.key);
       }
-      if (leftWasDown && !this.leftFoot.down) {
-        this.momentum = this.momentum + this.leftFoot.finishStroke();
-      } else if (!leftWasDown && this.leftFoot.down) {
-        if (this.leftFoot.position !== 0) {
-          this.momentum = 20;
-          this.stumbled = true;
+      that = this;
+      checkStroke = function(foot, wasDown, otherFoot) {
+        if (wasDown && !foot.down) {
+          return that.momentum = that.momentum + foot.finishStroke();
+        } else if (!wasDown && foot.down) {
+          if (foot.position !== 0) {
+            that.momentum = 20;
+            that.stumbled = true;
+          }
+          foot.startStroke();
+          return otherFoot.reposition();
         }
-        this.leftFoot.startStroke();
-        this.rightFoot.reposition();
-      }
-      if (rightWasDown && !this.rightFoot.down) {
-        this.momentum = this.momentum + this.rightFoot.finishStroke();
-      } else if (!rightWasDown && this.rightFoot.down) {
-        if (this.rightFoot.position !== 0) {
-          this.momentum = 20;
-          this.stumbled = true;
-        }
-        this.rightFoot.startStroke();
-        this.leftFoot.reposition();
-      }
+      };
+      checkStroke(this.leftFoot, leftWasDown, this.rightFoot);
+      checkStroke(this.rightFoot, rightWasDown, this.leftFoot);
       if (this.momentum > 0) this.momentum = this.momentum - 0.5;
       if (this.momentum > 600) this.momentum = 600;
       speed = Math.ceil(this.momentum / 40);
