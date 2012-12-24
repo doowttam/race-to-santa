@@ -384,17 +384,21 @@ class Foot
 
 class Course
   constructor: (@width) ->
-    @items    = {}
     @edge     = @width
     @slope    = 1.5
-    @end      = 100000
     @lastItem = 0
+
+    end    = 100000
+    @end   = end
+    @items = {}
+    @items[end]      = new End 0, 70, 1
+    @items[end + 50] = new Santa 70, 8, 22
 
   update: (x) ->
     if x + @width > @edge
       @edge = x + @width
 
-      return if @lastItem > @edge - 100
+      return if @edge > @end or @lastItem > @edge - 100
 
       if Math.random() < 0.005
         @items[@edge] = new Tree 70, 8, 22
@@ -578,3 +582,14 @@ class RoughPatch extends Entity
     [drawX, drawY] = @shift 40, drawX, drawY, slope
     super context, drawX, drawY, slope
 
+class Santa extends Entity
+  draw: (context, drawX, drawY, slope) ->
+    context.strokeStyle = 'red'
+    [drawX, drawY] = @shift 10, drawX, drawY, slope
+    super context, drawX, drawY, slope
+
+class End extends Entity
+  draw: (context, drawX, drawY, slope) ->
+    context.strokeStyle = 'red'
+    [drawX, drawY] = @shift 50, drawX, drawY, slope
+    super context, drawX, drawY, slope

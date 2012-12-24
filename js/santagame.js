@@ -1,5 +1,5 @@
 (function() {
-  var Course, Entity, Foot, Key, Player, PlayerBody, RoughPatch, Tree,
+  var Course, End, Entity, Foot, Key, Player, PlayerBody, RoughPatch, Santa, Tree,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
@@ -428,18 +428,22 @@
   Course = (function() {
 
     function Course(width) {
+      var end;
       this.width = width;
-      this.items = {};
       this.edge = this.width;
       this.slope = 1.5;
-      this.end = 100000;
       this.lastItem = 0;
+      end = 100000;
+      this.end = end;
+      this.items = {};
+      this.items[end] = new End(0, 70, 1);
+      this.items[end + 50] = new Santa(70, 8, 22);
     }
 
     Course.prototype.update = function(x) {
       if (x + this.width > this.edge) {
         this.edge = x + this.width;
-        if (this.lastItem > this.edge - 100) return;
+        if (this.edge > this.end || this.lastItem > this.edge - 100) return;
         if (Math.random() < 0.005) {
           this.items[this.edge] = new Tree(70, 8, 22);
           return this.lastItem = this.edge;
@@ -653,6 +657,44 @@
     };
 
     return RoughPatch;
+
+  })(Entity);
+
+  Santa = (function(_super) {
+
+    __extends(Santa, _super);
+
+    function Santa() {
+      Santa.__super__.constructor.apply(this, arguments);
+    }
+
+    Santa.prototype.draw = function(context, drawX, drawY, slope) {
+      var _ref;
+      context.strokeStyle = 'red';
+      _ref = this.shift(10, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
+      return Santa.__super__.draw.call(this, context, drawX, drawY, slope);
+    };
+
+    return Santa;
+
+  })(Entity);
+
+  End = (function(_super) {
+
+    __extends(End, _super);
+
+    function End() {
+      End.__super__.constructor.apply(this, arguments);
+    }
+
+    End.prototype.draw = function(context, drawX, drawY, slope) {
+      var _ref;
+      context.strokeStyle = 'red';
+      _ref = this.shift(50, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
+      return End.__super__.draw.call(this, context, drawX, drawY, slope);
+    };
+
+    return End;
 
   })(Entity);
 
