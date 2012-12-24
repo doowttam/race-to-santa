@@ -29,8 +29,8 @@
         return _this.key.onKeyDown(e);
       };
       this.course = new Course(this.canvas.width);
-      this.player1 = new Player('LEFT', 'RIGHT', 'DOWN', 0, 200, this.canvas, this.key, 100, this.course, 1);
-      this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.canvas, this.key, 100, this.course, 0);
+      this.player1 = new Player('LEFT', 'RIGHT', 'DOWN', 0, 200, this.canvas, this.key, this.course, 1);
+      this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.canvas, this.key, this.course, 0);
       this.player1.watchPlayer(this.player2);
       this.player2.watchPlayer(this.player1);
       this.drawOpener();
@@ -189,7 +189,7 @@
 
   Player = (function() {
 
-    function Player(leftKey, rightKey, jumpKey, top, bottom, canvas, key, momentum, course, lane) {
+    function Player(leftKey, rightKey, jumpKey, top, bottom, canvas, key, course, lane) {
       this.leftKey = leftKey;
       this.rightKey = rightKey;
       this.jumpKey = jumpKey;
@@ -197,7 +197,6 @@
       this.bottom = bottom;
       this.canvas = canvas;
       this.key = key;
-      this.momentum = momentum;
       this.course = course;
       this.lane = lane;
       this.leftFoot = new Foot(this.leftKey);
@@ -208,6 +207,7 @@
       this.jumping = false;
       this.elevation = 0;
       this.jumpHeight = 50;
+      this.momentum = 100;
     }
 
     Player.prototype.watchPlayer = function(otherPlayer) {

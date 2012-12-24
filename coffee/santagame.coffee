@@ -17,8 +17,8 @@ class window.SantaGame
 
     @course  = new Course @canvas.width
 
-    @player1 = new Player 'LEFT', 'RIGHT', 'DOWN', 0, 200, @canvas, @key, 100, @course, 1
-    @player2 = new Player 'A', 'D', 'S', 200, @canvas.height, @canvas, @key, 100, @course, 0
+    @player1 = new Player 'LEFT', 'RIGHT', 'DOWN', 0, 200, @canvas, @key, @course, 1
+    @player2 = new Player 'A', 'D', 'S', 200, @canvas.height, @canvas, @key, @course, 0
 
     @player1.watchPlayer @player2
     @player2.watchPlayer @player1
@@ -173,7 +173,7 @@ class Key
     delete @pressed[event.keyCode]
 
 class Player
-  constructor: (@leftKey, @rightKey, @jumpKey, @top, @bottom, @canvas, @key, @momentum, @course, @lane) ->
+  constructor: (@leftKey, @rightKey, @jumpKey, @top, @bottom, @canvas, @key, @course, @lane) ->
     @leftFoot   = new Foot @leftKey
     @rightFoot  = new Foot @rightKey
     @x          = 0
@@ -182,6 +182,7 @@ class Player
     @jumping    = false
     @elevation  = 0
     @jumpHeight = 50
+    @momentum   = 100
 
   watchPlayer: (@otherPlayer) ->
 
