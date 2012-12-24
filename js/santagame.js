@@ -29,8 +29,8 @@
         return _this.key.onKeyDown(e);
       };
       this.course = new Course(this.canvas.width);
-      this.player1 = new Player('LEFT', 'RIGHT', 'DOWN', 0, 200, this.canvas, this.key, this.course, 1);
-      this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.canvas, this.key, this.course, 0);
+      this.player1 = new Player('LEFT', 'RIGHT', 'DOWN', 0, 200, this.key, this.course, 1);
+      this.player2 = new Player('A', 'D', 'S', 200, this.canvas.height, this.key, this.course, 0);
       this.player1.watchPlayer(this.player2);
       this.player2.watchPlayer(this.player1);
       this.drawOpener();
@@ -189,13 +189,12 @@
 
   Player = (function() {
 
-    function Player(leftKey, rightKey, jumpKey, top, bottom, canvas, key, course, lane) {
+    function Player(leftKey, rightKey, jumpKey, top, bottom, key, course, lane) {
       this.leftKey = leftKey;
       this.rightKey = rightKey;
       this.jumpKey = jumpKey;
       this.top = top;
       this.bottom = bottom;
-      this.canvas = canvas;
       this.key = key;
       this.course = course;
       this.lane = lane;
@@ -251,7 +250,7 @@
         this.leftFoot.reposition();
       }
       if (this.momentum > 0) this.momentum = this.momentum - 0.5;
-      if (this.momentum > this.canvas.width) this.momentum = this.canvas.width;
+      if (this.momentum > 600) this.momentum = 600;
       speed = Math.ceil(this.momentum / 40);
       if (!(this.elevation > 0)) {
         collideAt = this.course.checkCollision(this.x, speed);

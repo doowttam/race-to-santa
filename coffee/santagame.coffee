@@ -17,8 +17,8 @@ class window.SantaGame
 
     @course  = new Course @canvas.width
 
-    @player1 = new Player 'LEFT', 'RIGHT', 'DOWN', 0, 200, @canvas, @key, @course, 1
-    @player2 = new Player 'A', 'D', 'S', 200, @canvas.height, @canvas, @key, @course, 0
+    @player1 = new Player 'LEFT', 'RIGHT', 'DOWN', 0, 200, @key, @course, 1
+    @player2 = new Player 'A', 'D', 'S', 200, @canvas.height, @key, @course, 0
 
     @player1.watchPlayer @player2
     @player2.watchPlayer @player1
@@ -173,7 +173,7 @@ class Key
     delete @pressed[event.keyCode]
 
 class Player
-  constructor: (@leftKey, @rightKey, @jumpKey, @top, @bottom, @canvas, @key, @course, @lane) ->
+  constructor: (@leftKey, @rightKey, @jumpKey, @top, @bottom, @key, @course, @lane) ->
     @leftFoot   = new Foot @leftKey
     @rightFoot  = new Foot @rightKey
     @x          = 0
@@ -224,11 +224,10 @@ class Player
       @leftFoot.reposition()
 
     # Normal slow down
-    if @momentum > 0
-      @momentum = @momentum - 0.5
+    if @momentum > 0 then @momentum = @momentum - 0.5
 
-    if @momentum > @canvas.width
-      @momentum = @canvas.width
+    # Max momentum
+    if @momentum > 600 then @momentum = 600
 
     speed = Math.ceil( @momentum / 40)
 
