@@ -79,7 +79,7 @@
 
     SantaGame.prototype.drawHud = function() {
       var player1Pos, player2Pos;
-      this.context.strokeStyle = 'black';
+      this.context.strokeStyle = 'white';
       this.context.beginPath();
       this.context.moveTo(0, 200);
       this.context.lineTo(this.canvas.width, 200);
@@ -392,11 +392,13 @@
       } else if (radius > this.greatRadius) {
         return 'green';
       } else {
-        return 'black';
+        return 'gray';
       }
     };
 
     Foot.prototype.draw = function(context, x, y) {
+      context.strokeStyle = 'gray';
+      context.lineWidth = 1;
       y = y + (this.position * (-50 * this.scale));
       context.beginPath();
       context.arc(x, y, this.radius * this.scale, 0, Math.PI * 2, false);
@@ -404,12 +406,10 @@
       context.fillStyle = this.colorByRadius(this.radius);
       context.stroke();
       context.fill();
-      context.strokeStyle = 'gray';
       context.beginPath();
       context.arc(x, y, this.greatRadius * this.scale, 0, Math.PI * 2, false);
       context.closePath();
       context.stroke();
-      context.strokeStyle = 'gray';
       context.beginPath();
       context.arc(x, y, this.maxRadius * this.scale, 0, Math.PI * 2, false);
       context.closePath();
@@ -466,7 +466,7 @@
     Course.prototype.draw = function(context, canvas, top, bottom, xOffset, otherPlayer, padding) {
       var drawX, horizon, otherDrawX, otherDrawY, start, _ref, _ref2, _ref3;
       horizon = bottom - 70;
-      context.strokeStyle = 'black';
+      context.strokeStyle = 'white';
       context.beginPath();
       context.moveTo(0, horizon);
       context.lineTo(canvas.width, horizon);
@@ -526,7 +526,8 @@
       y1 = drawY;
       x2 = drawX + this.width * slope;
       y2 = drawY + this.width;
-      context.fillStyle = 'white';
+      context.fillStyle = 'black';
+      context.lineWidth = 2;
       context.beginPath();
       context.moveTo(x1 + slant, y1 - this.height);
       context.lineTo(x2 + slant, y2 - this.height);
@@ -607,7 +608,7 @@
 
     RoughPatch.prototype.draw = function(context, drawX, drawY, slope) {
       var _ref;
-      context.strokeStyle = 'black';
+      context.strokeStyle = 'yellow';
       _ref = this.shift(40, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
       return RoughPatch.__super__.draw.call(this, context, drawX, drawY, slope);
     };

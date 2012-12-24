@@ -74,7 +74,7 @@ class window.SantaGame
     requestAnimationFrame @drawFrame if @running
 
   drawHud: ->
-    @context.strokeStyle = 'black'
+    @context.strokeStyle = 'white'
 
     @context.beginPath()
     @context.moveTo 0, 200
@@ -346,9 +346,12 @@ class Foot
     else if radius > @greatRadius
       'green'
     else
-      'black'
+      'gray'
 
   draw: (context, x, y) ->
+    context.strokeStyle = 'gray'
+    context.lineWidth   = 1
+
     y = y + (@position * (-50 * @scale))
 
     context.beginPath()
@@ -360,15 +363,11 @@ class Foot
     context.stroke()
     context.fill()
 
-    context.strokeStyle = 'gray'
-
     context.beginPath()
     context.arc x, y, @greatRadius * @scale, 0, Math.PI * 2, false
     context.closePath()
 
     context.stroke()
-
-    context.strokeStyle = 'gray'
 
     context.beginPath()
     context.arc x, y, @maxRadius * @scale, 0, Math.PI * 2, false
@@ -411,8 +410,7 @@ class Course
   draw: (context, canvas, top, bottom, xOffset, otherPlayer, padding) ->
     horizon = bottom - 70
 
-    context.strokeStyle = 'black'
-
+    context.strokeStyle = 'white'
     context.beginPath()
     context.moveTo 0, horizon
     context.lineTo canvas.width, horizon
@@ -461,7 +459,8 @@ class Entity
     x2 = drawX + @width * slope
     y2 = drawY + @width
 
-    context.fillStyle = 'white'
+    context.fillStyle = 'black'
+    context.lineWidth = 2
 
     context.beginPath()
 
@@ -514,7 +513,7 @@ class PlayerBody extends Entity
 
 class RoughPatch extends Entity
   draw: (context, drawX, drawY, slope) ->
-    context.strokeStyle = 'black'
+    context.strokeStyle = 'yellow'
 
     [drawX, drawY] = @shift 40, drawX, drawY, slope
     super context, drawX, drawY, slope
