@@ -1,5 +1,5 @@
 (function() {
-  var Course, Foot, Key, Player,
+  var Course, Foot, Key, Player, Tree,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   window.SantaGame = (function() {
@@ -256,12 +256,14 @@
       this.width = width;
       this.items = {};
       this.edge = this.width;
+      this.slope = 1.5;
+      this.yIntercept = 900;
     }
 
     Course.prototype.update = function(x) {
       if (x + this.width > this.edge) {
         this.edge = x + this.width;
-        if (Math.random() < 0.01) return this.items[this.edge] = true;
+        if (Math.random() < 0.005) return this.items[this.edge] = new Tree;
       }
     };
 
@@ -275,19 +277,19 @@
       context.closePath();
       context.stroke();
       start = x % 100;
-      for (drawX = 0, _ref = canvas.width; drawX <= _ref; drawX += 100) {
+      for (drawX = 0, _ref = canvas.width + 100; drawX <= _ref; drawX += 100) {
         context.beginPath();
         context.moveTo(drawX - start, top);
         context.lineTo(drawX - start, horizon);
         context.moveTo(drawX - start, horizon);
-        context.lineTo(drawX - start + 75, bottom);
+        context.lineTo(drawX - start + ((bottom - horizon) * this.slope), bottom);
         context.closePath();
         context.stroke();
       }
       _results = [];
       for (drawX = x, _ref2 = x + this.width; x <= _ref2 ? drawX <= _ref2 : drawX >= _ref2; x <= _ref2 ? drawX++ : drawX--) {
         if (this.items[drawX]) {
-          _results.push(this.drawItem(context, drawX - x, bottom));
+          _results.push(this.items[drawX].draw(context, drawX - x, bottom - 110, this.slope));
         } else {
           _results.push(void 0);
         }
@@ -295,12 +297,43 @@
       return _results;
     };
 
-    Course.prototype.drawItem = function(context, drawX, bottom) {
+    return Course;
+
+  })();
+
+  Tree = (function() {
+
+    function Tree() {}
+
+    Tree.prototype.draw = function(context, drawX, drawY, slope) {
+      var depth, height, width, x1, x2, y1, y2;
+      height = 70;
+      width = 10;
+      depth = 20;
+      x1 = drawX;
+      y1 = drawY;
+      x2 = drawX + width * slope;
+      y2 = drawY + width;
       context.fillStyle = 'black';
-      return context.fillRect(drawX, bottom - 75, 30, 60);
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.lineTo(x2, y2 + height);
+      context.lineTo(x1, y1 + height);
+      context.lineTo(x1, y1);
+      context.moveTo(x1, y1);
+      context.lineTo(x1 + depth, y1);
+      context.lineTo(x2 + depth, y2);
+      context.lineTo(x2 + depth, y2 + height);
+      context.lineTo(x2, y2 + height);
+      context.moveTo(x2, y2);
+      context.lineTo(x2 + depth, y2);
+      context.moveTo(x1, y1);
+      context.closePath();
+      return context.stroke();
     };
 
-    return Course;
+    return Tree;
 
   })();
 

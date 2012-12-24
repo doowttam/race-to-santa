@@ -208,14 +208,16 @@ class Foot
 
 class Course
   constructor: (@width) ->
-    @items   = {}
-    @edge    = @width
+    @items      = {}
+    @edge       = @width
+    @slope      = 1.5
+    @yIntercept = 900
 
   update: (x) ->
     if x + @width > @edge
       @edge = x + @width
-      if Math.random() < 0.01
-        @items[@edge] = true
+      if Math.random() < 0.005
+        @items[@edge] = new Tree
 
   draw: (context, canvas, top, bottom, x) ->
     horizon = bottom - 50
@@ -230,19 +232,50 @@ class Course
     context.stroke()
 
     start = x % 100
-    for drawX in [0..canvas.width] by 100
+    for drawX in [0..canvas.width + 100] by 100
       context.beginPath()
       context.moveTo drawX - start, top
       context.lineTo drawX - start, horizon
       context.moveTo drawX - start, horizon
-      context.lineTo drawX - start + 75, bottom
+      context.lineTo drawX - start + ((bottom - horizon) * @slope), bottom
       context.closePath()
 
       context.stroke()
 
     for drawX in [x..x + @width]
-      @drawItem(context, drawX - x, bottom) if @items[drawX]
+      @items[drawX].draw(context, drawX - x, bottom - 110, @slope) if @items[drawX]
 
-  drawItem: (context, drawX, bottom) ->
+class Tree
+  draw: (context, drawX, drawY, slope) ->
+    height = 70
+    width  = 10
+    depth  = 20
+
+    x1 = drawX
+    y1 = drawY
+    x2 = drawX + width * slope
+    y2 = drawY + width
+
     context.fillStyle = 'black'
-    context.fillRect drawX, bottom - 75, 30, 60
+
+    context.beginPath()
+
+    # Trunk
+    context.moveTo x1, y1
+    context.lineTo x2, y2
+    context.lineTo x2, y2 + height
+    context.lineTo x1, y1 + height
+    context.lineTo x1, y1
+
+    context.moveTo x1, y1
+    context.lineTo x1 + depth, y1
+    context.lineTo x2 + depth, y2
+    context.lineTo x2 + depth, y2 + height
+    context.lineTo x2, y2 + height
+    context.moveTo x2, y2
+    context.lineTo x2 + depth, y2
+    context.moveTo x1, y1
+
+    context.closePath()
+
+    context.stroke()
