@@ -397,7 +397,7 @@
           this.items[this.edge] = new Tree(70, 8, 22);
           return this.lastItem = this.edge;
         } else if (Math.random() < 0.005) {
-          this.items[this.edge] = new RoughPatch(0, 5, 20, true);
+          this.items[this.edge] = new RoughPatch(0, 40, 20, true);
           return this.lastItem = this.edge;
         }
       }
@@ -464,6 +464,15 @@
       this.canCollide = canCollide != null ? canCollide : false;
     }
 
+    Entity.prototype.shift = function(shiftBack, drawX, drawY, slope) {
+      var xShift, yShift;
+      yShift = shiftBack;
+      xShift = shiftBack * slope;
+      drawX = drawX - xShift;
+      drawY = drawY - yShift;
+      return [drawX, drawY];
+    };
+
     Entity.prototype.draw = function(context, drawX, drawY, slope) {
       var x1, x2, y1, y2;
       x1 = drawX;
@@ -503,12 +512,8 @@
     }
 
     Tree.prototype.draw = function(context, drawX, drawY, slope) {
-      var depth, shiftBack, width, x1, x2, xShift, y1, y2, yShift;
-      shiftBack = 40;
-      yShift = shiftBack;
-      xShift = shiftBack * slope;
-      drawX = drawX - xShift;
-      drawY = drawY - yShift;
+      var depth, width, x1, x2, y1, y2, _ref;
+      _ref = this.shift(40, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
       context.strokeStyle = 'saddlebrown';
       Tree.__super__.draw.call(this, context, drawX, drawY, slope);
       drawX = drawX - 25;
@@ -552,13 +557,9 @@
     }
 
     PlayerBody.prototype.draw = function(context, drawX, drawY, slope, lane) {
-      var shiftBack, xShift, yShift;
-      shiftBack = lane * 20;
-      yShift = shiftBack;
-      xShift = shiftBack * slope;
-      drawX = drawX - xShift;
-      drawY = drawY - yShift;
+      var _ref;
       context.strokeStyle = 'black';
+      _ref = this.shift(lane * 20, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
       return PlayerBody.__super__.draw.call(this, context, drawX - this.depth, drawY, slope);
     };
 
@@ -575,7 +576,9 @@
     }
 
     RoughPatch.prototype.draw = function(context, drawX, drawY, slope) {
+      var _ref;
       context.strokeStyle = 'black';
+      _ref = this.shift(35, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
       return RoughPatch.__super__.draw.call(this, context, drawX, drawY, slope);
     };
 

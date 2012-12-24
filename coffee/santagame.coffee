@@ -352,7 +352,7 @@ class Course
         @items[@edge] = new Tree 70, 8, 22
         @lastItem     = @edge
       else if Math.random() < 0.005
-        @items[@edge] = new RoughPatch 0, 5, 20, true
+        @items[@edge] = new RoughPatch 0, 40, 20, true
         @lastItem     = @edge
 
   checkCollision: (x, speed) ->
@@ -400,6 +400,15 @@ class Course
 class Entity
   constructor: (@height, @width, @depth, @canCollide = false) ->
 
+  shift: (shiftBack, drawX, drawY, slope) ->
+    yShift = shiftBack
+    xShift = shiftBack * slope
+
+    drawX = drawX - xShift
+    drawY = drawY - yShift
+
+    [drawX, drawY]
+
   draw: (context, drawX, drawY, slope) ->
     x1 = drawX
     y1 = drawY
@@ -432,12 +441,7 @@ class Entity
 
 class Tree extends Entity
   draw: (context, drawX, drawY, slope) ->
-    shiftBack = 40
-    yShift = shiftBack
-    xShift = shiftBack * slope
-
-    drawX = drawX - xShift
-    drawY = drawY - yShift
+    [drawX, drawY] = @shift 40, drawX, drawY, slope
 
     context.strokeStyle = 'saddlebrown'
 
@@ -482,18 +486,15 @@ class Tree extends Entity
 class PlayerBody extends Entity
   # Draw the player with x being their front, rather than back
   draw: (context, drawX, drawY, slope, lane) ->
-    shiftBack = lane * 20
-    yShift = shiftBack
-    xShift = shiftBack * slope
-
-    drawX = drawX - xShift
-    drawY = drawY - yShift
-
     context.strokeStyle = 'black'
+
+    [drawX, drawY] = @shift (lane * 20), drawX, drawY, slope
     super context, drawX - @depth, drawY, slope
 
 class RoughPatch extends Entity
   draw: (context, drawX, drawY, slope) ->
     context.strokeStyle = 'black'
+
+    [drawX, drawY] = @shift 35, drawX, drawY, slope
     super context, drawX, drawY, slope
 
