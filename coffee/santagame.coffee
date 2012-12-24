@@ -193,6 +193,13 @@ class window.SantaGame
     @context.textAlign = 'center'
     @context.fillText player + " wins!", @canvas.width / 2, 125
 
+    @context.fillStyle = 'white'
+    @context.font = 'bold 18px sans-serif'
+    @context.textAlign = 'center'
+    @context.fillText 'Refresh the page to play again.', @canvas.width / 2, 200
+
+    @buttons.pause.disabled = true
+
   update: ->
     @player1.update()
     @player2.update()
@@ -405,7 +412,7 @@ class Course
     @slope    = 1.5
     @lastItem = 0
 
-    end    = 60000
+    end    = 50000
     @end   = end
     @items = {}
     @items[end]      = new End 0, 70, 1

@@ -183,7 +183,12 @@
       this.context.fillStyle = 'white';
       this.context.font = 'bold 48px sans-serif';
       this.context.textAlign = 'center';
-      return this.context.fillText(player + " wins!", this.canvas.width / 2, 125);
+      this.context.fillText(player + " wins!", this.canvas.width / 2, 125);
+      this.context.fillStyle = 'white';
+      this.context.font = 'bold 18px sans-serif';
+      this.context.textAlign = 'center';
+      this.context.fillText('Refresh the page to play again.', this.canvas.width / 2, 200);
+      return this.buttons.pause.disabled = true;
     };
 
     SantaGame.prototype.update = function() {
@@ -446,7 +451,7 @@
       this.edge = this.width;
       this.slope = 1.5;
       this.lastItem = 0;
-      end = 60000;
+      end = 50000;
       this.end = end;
       this.items = {};
       this.items[end] = new End(0, 70, 1);
