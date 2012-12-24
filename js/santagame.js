@@ -137,7 +137,7 @@
     };
 
     Player.prototype.update = function() {
-      var leftWasDown, rightWasDown, speed;
+      var collideAt, leftWasDown, rightWasDown, speed;
       leftWasDown = this.leftFoot.down;
       rightWasDown = this.rightFoot.down;
       if (this.key.isDown(this.key.codes[this.jumpKey]) && !this.jumping && !(this.elevation > 0)) {
@@ -175,12 +175,19 @@
       if (this.momentum > 0) this.momentum = this.momentum - 0.5;
       if (this.momentum > this.canvas.width) this.momentum = this.canvas.width;
       speed = Math.ceil(this.momentum / 40);
+      if (!(this.elevation > 0)) {
+        collideAt = this.course.checkCollision(this.x, speed);
+        if (collideAt > 0) {
+          this.momentum = 0;
+          speed = collideAt;
+        }
+      }
       this.x = this.x + speed;
       return this.course.update(this.x);
     };
 
     Player.prototype.draw = function(context, canvas) {
-      this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer);
+      this.course.draw(context, canvas, this.top, this.bottom, this.x, this.otherPlayer, this.padding);
       this.leftFoot.draw(context, canvas.width - 200, this.top + 75);
       this.rightFoot.draw(context, canvas.width - 100, this.top + 75);
       this.body.draw(context, this.padding, this.bottom - 20 - this.elevation, 1.5);
@@ -309,7 +316,15 @@
       }
     };
 
-    Course.prototype.draw = function(context, canvas, top, bottom, xOffset, otherPlayer) {
+    Course.prototype.checkCollision = function(x, speed) {
+      var collisionX, _ref;
+      for (collisionX = x, _ref = x + speed; x <= _ref ? collisionX <= _ref : collisionX >= _ref; x <= _ref ? collisionX++ : collisionX--) {
+        if (this.items[collisionX]) return collisionX - x;
+      }
+      return 0;
+    };
+
+    Course.prototype.draw = function(context, canvas, top, bottom, xOffset, otherPlayer, padding) {
       var drawX, horizon, start, _ref, _ref2, _ref3;
       horizon = bottom - 50;
       context.strokeStyle = 'black';
@@ -328,9 +343,9 @@
         context.closePath();
         context.stroke();
       }
-      for (drawX = _ref2 = xOffset - 50, _ref3 = xOffset + this.width; _ref2 <= _ref3 ? drawX <= _ref3 : drawX >= _ref3; _ref2 <= _ref3 ? drawX++ : drawX--) {
+      for (drawX = _ref2 = xOffset - 100, _ref3 = xOffset + this.width; _ref2 <= _ref3 ? drawX <= _ref3 : drawX >= _ref3; _ref2 <= _ref3 ? drawX++ : drawX--) {
         if (this.items[drawX]) {
-          this.items[drawX].draw(context, drawX - xOffset, bottom - 45, this.slope);
+          this.items[drawX].draw(context, drawX - xOffset + padding, bottom - 45, this.slope);
         }
       }
       if (otherPlayer && otherPlayer.x >= xOffset - otherPlayer.padding && otherPlayer.x <= xOffset + this.width) {

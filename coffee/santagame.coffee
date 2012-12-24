@@ -143,12 +143,20 @@ class Player
       @momentum = @canvas.width
 
     speed = Math.ceil( @momentum / 40)
+
+    if !(@elevation > 0)
+      collideAt = @course.checkCollision @x, speed
+
+      if collideAt > 0
+        @momentum = 0
+        speed = collideAt
+
     @x = @x + speed
 
     @course.update @x
 
   draw: (context, canvas) ->
-    @course.draw context, canvas, @top, @bottom, @x, @otherPlayer
+    @course.draw context, canvas, @top, @bottom, @x, @otherPlayer, @padding
     @leftFoot.draw context, canvas.width - 200, @top + 75
     @rightFoot.draw context, canvas.width - 100, @top + 75
     @body.draw context, @padding, @bottom - 20 - @elevation, 1.5
@@ -252,7 +260,12 @@ class Course
       else if Math.random() < 0.005
         @items[@edge] = new RoughPatch 0, 35, 30
 
-  draw: (context, canvas, top, bottom, xOffset, otherPlayer) ->
+  checkCollision: (x, speed) ->
+    for collisionX in [x..x + speed]
+      return collisionX - x if @items[collisionX]
+    return 0
+
+  draw: (context, canvas, top, bottom, xOffset, otherPlayer, padding) ->
     horizon = bottom - 50
 
     context.strokeStyle = 'black'
@@ -275,8 +288,8 @@ class Course
 
       context.stroke()
 
-    for drawX in [(xOffset - 50)..xOffset + @width]
-      @items[drawX].draw(context, drawX - xOffset, bottom - 45, @slope) if @items[drawX]
+    for drawX in [(xOffset - 100)..xOffset + @width]
+      @items[drawX].draw(context, drawX - xOffset + padding, bottom - 45, @slope) if @items[drawX]
 
     if otherPlayer and otherPlayer.x >= xOffset - otherPlayer.padding and otherPlayer.x <= xOffset + @width
       otherPlayer.body.draw context, otherPlayer.x - xOffset + otherPlayer.padding, bottom - 20 - otherPlayer.elevation, 1.5
