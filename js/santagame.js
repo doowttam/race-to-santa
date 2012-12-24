@@ -386,7 +386,7 @@
         this.edge = x + this.width;
         if (this.lastItem > this.edge - 100) return;
         if (Math.random() < 0.005) {
-          this.items[this.edge] = new Tree(70, 10, 20);
+          this.items[this.edge] = new Tree(70, 8, 22);
           return this.lastItem = this.edge;
         } else if (Math.random() < 0.005) {
           this.items[this.edge] = new RoughPatch(0, 5, 20, true);
@@ -457,8 +457,7 @@
       y1 = drawY;
       x2 = drawX + this.width * slope;
       y2 = drawY + this.width;
-      context.strokeStyle = 'black';
-      context.fillStyle = 'black';
+      context.fillStyle = 'white';
       context.beginPath();
       context.moveTo(x1, y1 - this.height);
       context.lineTo(x2, y2 - this.height);
@@ -474,6 +473,7 @@
       context.lineTo(x2 + this.depth, y2 - this.height);
       context.moveTo(x1, y1 - this.height);
       context.closePath();
+      context.fill();
       return context.stroke();
     };
 
@@ -489,6 +489,43 @@
       Tree.__super__.constructor.apply(this, arguments);
     }
 
+    Tree.prototype.draw = function(context, drawX, drawY, slope) {
+      var depth, shiftBack, width, x1, x2, xShift, y1, y2, yShift;
+      shiftBack = 30;
+      yShift = shiftBack;
+      xShift = shiftBack * slope;
+      drawX = drawX - xShift;
+      drawY = drawY - yShift;
+      context.strokeStyle = 'saddlebrown';
+      Tree.__super__.draw.call(this, context, drawX, drawY, slope);
+      drawX = drawX - 25;
+      depth = 60;
+      width = 15;
+      x1 = drawX;
+      y1 = drawY - this.height;
+      x2 = drawX + width * slope;
+      y2 = drawY + width - this.height;
+      context.strokeStyle = 'green';
+      context.fillStyle = 'white';
+      context.beginPath();
+      context.moveTo(x1, y1 - this.height);
+      context.lineTo(x2, y2 - this.height);
+      context.lineTo(x2, y2);
+      context.lineTo(x1, y1);
+      context.lineTo(x1, y1 - this.height);
+      context.moveTo(x1, y1 - this.height);
+      context.lineTo(x1 + depth, y1 - this.height);
+      context.lineTo(x2 + depth, y2 - this.height);
+      context.lineTo(x2 + depth, y2);
+      context.lineTo(x2, y2);
+      context.moveTo(x2, y2 - this.height);
+      context.lineTo(x2 + depth, y2 - this.height);
+      context.moveTo(x1, y1 - this.height);
+      context.closePath();
+      context.fill();
+      return context.stroke();
+    };
+
     return Tree;
 
   })(Entity);
@@ -502,6 +539,7 @@
     }
 
     PlayerBody.prototype.draw = function(context, drawX, drawY, slope) {
+      context.strokeStyle = 'black';
       return PlayerBody.__super__.draw.call(this, context, drawX - this.depth, drawY, slope);
     };
 
@@ -516,6 +554,11 @@
     function RoughPatch() {
       RoughPatch.__super__.constructor.apply(this, arguments);
     }
+
+    RoughPatch.prototype.draw = function(context, drawX, drawY, slope) {
+      context.strokeStyle = 'black';
+      return RoughPatch.__super__.draw.call(this, context, drawX, drawY, slope);
+    };
 
     return RoughPatch;
 

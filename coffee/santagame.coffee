@@ -343,7 +343,7 @@ class Course
       return if @lastItem > @edge - 100
 
       if Math.random() < 0.005
-        @items[@edge] = new Tree 70, 10, 20
+        @items[@edge] = new Tree 70, 8, 22
         @lastItem     = @edge
       else if Math.random() < 0.005
         @items[@edge] = new RoughPatch 0, 5, 20, true
@@ -394,8 +394,7 @@ class Entity
     x2 = drawX + @width * slope
     y2 = drawY + @width
 
-    context.strokeStyle = 'black'
-    context.fillStyle = 'black'
+    context.fillStyle = 'white'
 
     context.beginPath()
 
@@ -416,12 +415,66 @@ class Entity
 
     context.closePath()
 
+    context.fill()
     context.stroke()
 
 class Tree extends Entity
+  draw: (context, drawX, drawY, slope) ->
+    shiftBack = 30
+    yShift = shiftBack
+    xShift = shiftBack * slope
+
+    drawX = drawX - xShift
+    drawY = drawY - yShift
+
+    context.strokeStyle = 'saddlebrown'
+
+    super context, drawX, drawY, slope
+
+    # Draw leaves
+    drawX = drawX - 25
+
+    depth = 60
+    width = 15
+
+    x1 = drawX
+    y1 = drawY - @height
+    x2 = drawX + width * slope
+    y2 = drawY + width - @height
+
+    context.strokeStyle = 'green'
+    context.fillStyle = 'white'
+
+    context.beginPath()
+
+    context.moveTo x1, y1 - @height
+    context.lineTo x2, y2 - @height
+    context.lineTo x2, y2
+    context.lineTo x1, y1
+    context.lineTo x1, y1 - @height
+
+    context.moveTo x1, y1 - @height
+    context.lineTo x1 + depth, y1 - @height
+    context.lineTo x2 + depth, y2 - @height
+    context.lineTo x2 + depth, y2
+    context.lineTo x2, y2
+    context.moveTo x2, y2 - @height
+    context.lineTo x2 + depth, y2 - @height
+    context.moveTo x1, y1 - @height
+
+    context.closePath()
+
+    context.fill()
+    context.stroke()
 
 class PlayerBody extends Entity
   # Draw the player with x being their front, rather than back
-  draw: (context, drawX, drawY, slope) -> super context, drawX - @depth, drawY, slope
+  draw: (context, drawX, drawY, slope) ->
+    context.strokeStyle = 'black'
+    super context, drawX - @depth, drawY, slope
 
 class RoughPatch extends Entity
+  draw: (context, drawX, drawY, slope) ->
+    context.strokeStyle = 'black'
+    super context, drawX, drawY, slope
+
