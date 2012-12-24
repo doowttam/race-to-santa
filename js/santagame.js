@@ -398,7 +398,7 @@
           this.items[this.edge] = new Tree(70, 8, 22);
           return this.lastItem = this.edge;
         } else if (Math.random() < 0.005) {
-          this.items[this.edge] = new RoughPatch(0, 40, 20, true);
+          this.items[this.edge] = new RoughPatch(0, 50, 20, true);
           return this.lastItem = this.edge;
         }
       }
@@ -602,7 +602,7 @@
     RoughPatch.prototype.draw = function(context, drawX, drawY, slope) {
       var _ref;
       context.strokeStyle = 'black';
-      _ref = this.shift(35, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
+      _ref = this.shift(40, drawX, drawY, slope), drawX = _ref[0], drawY = _ref[1];
       return RoughPatch.__super__.draw.call(this, context, drawX, drawY, slope);
     };
 

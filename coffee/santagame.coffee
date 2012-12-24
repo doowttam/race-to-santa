@@ -354,7 +354,7 @@ class Course
         @items[@edge] = new Tree 70, 8, 22
         @lastItem     = @edge
       else if Math.random() < 0.005
-        @items[@edge] = new RoughPatch 0, 40, 20, true
+        @items[@edge] = new RoughPatch 0, 50, 20, true
         @lastItem     = @edge
 
   checkCollision: (x, speed) ->
@@ -529,6 +529,6 @@ class RoughPatch extends Entity
   draw: (context, drawX, drawY, slope) ->
     context.strokeStyle = 'black'
 
-    [drawX, drawY] = @shift 35, drawX, drawY, slope
+    [drawX, drawY] = @shift 40, drawX, drawY, slope
     super context, drawX, drawY, slope
 
